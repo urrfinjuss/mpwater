@@ -1,0 +1,70 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb}
+\begin{document}
+\section{Description of Numerical Simulations.}
+We approximate a complex function $f(u)$ in terms of the Fourier series in the auxiliary transformed variable as 
+follows:
+\begin{align}
+f(u) = f(u(q)) = \sum_{k = -N/2}^{N/2-1} f_k \exp{ikq}
+\end{align}
+where the auxiliary transformation:
+\begin{align}
+\tan\frac{u-u^*}{2} = L \tan\frac{q-q^*}{2}
+\end{align}
+where the parameters $u^*$ and $L$ are the shift and magnification strength of the transform and are chosen so that the 
+Fourier coefficients $f_k$ decay the fastest.
+
+\subsection{Dynamically adjusting the transformation.}
+In the course of the simulation it is necessary to adjust the auxiliary transform so as to keep the solution well-resolved. 
+Assume that before the adjustment the transformation $u(q_1)$ with parameters are $L_1$ and $u_1^*$, and after the adjustment 
+the transformation $u(q_2)$ has the parameters are $L_2$ and $u_2^*$. One has to spend O$(N^2)$ flops and evaluate the Fourier 
+series at the new locations given by the following sum:
+\begin{align}
+f(u) = f(u(q_2)) = \sum_{k = -N/2}^{N/2-1} f_k \exp{ikq_2(q_1)}
+\end{align}
+CHECK the formula later.
+
+\subsection{Equations of Free Surface Hydrodynamics.}
+The formulation of the problem that is used for simulation was first derived in the paper~\cite{AIDyachenko2001}, and it amounts 
+to solving a system of equations:
+\begin{align}
+& Q_t = i (UQ_u + \ldots) \\
+& V_t = i (UV_u + \ldots) + ig(Q^2-1) 
+\end{align}
+Check the formula later.
+
+\subsection{Finding $Q$ from $Z_u$ by Fourier series inversion.}
+
+\section{Simulation Description.}
+In movies we show the evolution of the surface elevation whose initial profile is described in parametric form 
+via the complex function $z(w)$. Here $w\in\mathbb{C}^-$ and when $z(w)$ is evaluated for real argument it 
+give gives the parametric shape of the surface that is shown in the movie ($3a$). The velocity distribution at 
+the initial time is given by the complex potential $\Phi(w)$:
+\begin{align}
+z(w) = u - iq\left[ \ln i \sin \frac{w-ia_1}{2}  - \ln i \sin\frac{w-ia_2}{2}\right] \\
+\Phi(w) = cq\left[ \ln i\sin\frac{w-ia_1}{2} - \ln i \sin\frac{w-ia_2}{2} \right]
+\end{align}
+with the values of constants: $a_1 = 0.005$, $a_2 = 0.0075$ and $q = 2.5$ and $c = -0.02$. 
+
+\section{Time-Evolution}
+We evolve the full free surface hydrodynamics equations formulated in surface variables following the formulation 
+in variables $R = \frac{1}{z_w}$ and $V = \frac{i\Phi_w}{z_w}$ as described in the paper~\cite{AIDyachenko2001}.
+In the course of the simulation we also track the locations of the singularities of the functions $z_w(w)$ and 
+$\Phi_u$, whose only singularities at $t = 0$ are simple poles located at $w = ia_1$ and $w = ia_2$ as evident 
+from the initial condition. In the course of the numerical experiment (movie $3b$) the poles of $z_w$ and $\Phi_w$
+are attracted towards the real axis, and additional simple poles align themselves in an arc to mimick the position 
+of a developing branch cut. 
+
+\section{Comments}
+\begin{itemize}
+\item[1.]{The surface shape for the simulation is not a ``dumbbell'' because our formulation is set up in a way so it is
+convenient to work with infinite depth fluid. However, since it is the velocity field inside a thinning neck of the ``dumbbell'' 
+that we are after, the far field away from the neck should not be an obstacle.}
+\item[2.]{This simulation is a part of the paper on the singularities in free-surface hydrodynamics that our group is currently 
+working on.}
+\end{itemize}
+
+\bibliographystyle{unsrt}
+\bibliography{refs}
+
+\end{document}

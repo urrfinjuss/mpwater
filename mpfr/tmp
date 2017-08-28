@@ -1,0 +1,1 @@
+gcc -march=native -std=gnu99 -Ofast -ffast-math -mfpmath=sse+387 -flto -Wall -Wpointer-arith -Wcast-align -fno-schedule-insns -fschedule-insns2 -fstrict-aliasing -funroll-loops -fprefetch-loop-arrays   -I/home/orange/usr/include -c main.c memory.c array_func.c input.c output.c mapping.c hlevel.c evolve.c pade.c
