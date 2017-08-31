@@ -8,7 +8,7 @@ C_FSW   = main.c input.c memory.c evolve.c pade.c mapping.c output.c array_func.
 # Compilers -Ofast -ffast-math -mfpmath=387
 CC      = gcc
 LINK    = gcc
-OPT     = -march=native -std=gnu99 -Ofast -ffast-math -mfpmath=sse+387 -flto -Wall -Wpointer-arith -Wcast-align -fno-schedule-insns -fschedule-insns2 -fstrict-aliasing -funroll-loops -fprefetch-loop-arrays
+OPT     = -march=native -std=gnu99 -O2 -ffast-math -mfpmath=sse+387 -Wall -Wpointer-arith -Wcast-align -fno-schedule-insns -fschedule-insns2 -fstrict-aliasing -funroll-loops -fprefetch-loop-arrays
 #OPT	= -march=native -O -fno-inline -Wall -std=gnu99
 #OPT	= -std=gnu99 -mfpmath=387 -Wall
 
@@ -16,9 +16,9 @@ OPT     = -march=native -std=gnu99 -Ofast -ffast-math -mfpmath=sse+387 -flto -Wa
 #generic
 
 LIB_MPI         =
-LIB_FFT         = -L/home/orange/usr/lib -lmpfft -lmpfr -lpthread -lm
+LIB_FFT         = -L$(HOME)/usr/lib -lmpfft -lmpfr -lpthread -lm
 INC_MPI         =
-INC_FFT         = -I/home/orange/usr/include
+INC_FFT         = -I$(HOME)/usr/include
 LIB_ADD         =
 
 #-----------------------------

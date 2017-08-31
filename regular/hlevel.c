@@ -107,6 +107,7 @@ void convertQtoZ(fftwl_complex *in, fftwl_complex *out) {
     mean_level += 2.0L*j*creall(tmpc[0][j]*conjl(tmpc[0][j]));
     P += 2.L*creall((tmpc[4][j] + j*tmpc[2][j])*conjl(tmpc[1][j]));
   }
+  printf("P = %.15Le\n", P);
   mean_level = 2.L*PI*(S0 + mean_level);
   P += creall(tmpc[4][0]*conjl(tmpc[1][0]));
   state.potentialE = 2.L*PI*state.gravity*P;

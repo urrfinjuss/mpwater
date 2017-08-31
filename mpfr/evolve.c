@@ -109,73 +109,207 @@ void deallocate_timemarching() {
   fftwl_free(tV);
 }
 */
-/*
-void compute_rhs(mpfc_t *inQ, mpfc_t *inV, mpfc_t *outQ, mpfc_t *outV) {
-  unsigned long 	N = state.number_modes;
-  mpfr_t 		overN = 1.L/N;
-  mpfr_t 		sigma = state.surface_tension;
-  mpfr_t 		g = state.gravity;
-  mpfc_t 	w2 = cexpl(-1.IL*conf.origin_offset - 2.L*atanhl(conf.scaling));
-  mpfc_t		w1 = conjl(w2);
-  mpfc_t 	b1U = 0.L, b2U = 0.L;
-  //mpfc_t 	b1B = 0.L, b2B = 0.L;
 
-  if (conf.scaling == 1.0L) {
-	w2 = 0.L;
-	w1 = 0.L;
+void compute_rhs(mpfc_t *inQ, mpfc_t *inV, mpfc_t *outQ, mpfc_t *outV) {
+  long int	 	N = 1<<state.nbits;
+  mpfr_t 		overN, sigma, g, buf;
+  mpfc_t 		w1, w2, bufc;
+  mpfc_t 		b1U, b2U;
+  
+  mpfr_inits2(state.precision, overN, sigma, g, buf, (mpfr_ptr) NULL);
+  mpfr_inits2(state.precision, w1.re, w1.im, (mpfr_ptr) NULL);
+  mpfr_inits2(state.precision, w2.re, w2.im, (mpfr_ptr) NULL);
+  mpfr_inits2(state.precision, b1U.re, b1U.im, (mpfr_ptr) NULL);
+  mpfr_inits2(state.precision, b2U.re, b2U.im, (mpfr_ptr) NULL);
+  mpfr_inits2(state.precision, bufc.re, bufc.im, (mpfr_ptr) NULL);
+
+  mpfr_set_ui(overN,     1, MODE);
+  mpfr_div_si(overN, overN, N, MODE);
+  mpfr_set   (sigma, state.surface_tension, MODE);
+  mpfr_set   (    g, state.gravity, MODE);
+  
+  mpfr_atanh  (   buf, conf.scaling, MODE);
+  mpfr_mul_si (   buf,          buf, -2, MODE);
+  mpfr_exp    (   buf,          buf, MODE);
+  mpfr_sin_cos( w1.im,        w1.re, conf.origin_offset, MODE);
+  mpfr_mul    ( w1.re,        w1.re, buf, MODE);  
+  mpfr_mul    ( w1.im,        w1.im, buf, MODE);  
+
+  mpfr_set    ( w2.re,	      w1.re, MODE);
+  mpfr_neg    ( w2.im,        w1.im, MODE);
+
+  mpfr_set_ui (b1U.re,  0, MODE);
+  mpfr_set_ui (b1U.im,  0, MODE);
+  mpfr_set_ui (b2U.re,  0, MODE);
+  mpfr_set_ui (b2U.im,  0, MODE);
+  
+  if (mpfr_cmp_ld(conf.scaling, 1.0L) == 0) {
+    mpfr_set_ui(w1.re, 0, MODE);
+    mpfr_set_ui(w1.im, 0, MODE);
+    mpfr_set_ui(w2.re, 0, MODE);
+    mpfr_set_ui(w2.im, 0, MODE);
   }
-  memcpy(tmpc[0], inQ, N*sizeof(mpfc_t));
-  memcpy(tmpc[1], inV, N*sizeof(mpfc_t));
-  fftwl_execute(ift0); 
-  fftwl_execute(ift1); 
-  memset(tmpc[0]+N/2, 0, N/2*sizeof(mpfc_t));
-  memset(tmpc[1]+N/2, 0, N/2*sizeof(mpfc_t));
-  for (long int j = 0; j < N/2; j++) {
-    tmpc[0][j] = -1.IL*j*tmpc[0][j]*overN;
-    tmpc[1][j] = -1.IL*j*tmpc[1][j]*overN;
-  }
-  fftwl_execute(ft0);
-  fftwl_execute(ft1);
+  //memcpy(tmpc[0], inQ, N*sizeof(mpfc_t));
+  //memcpy(tmpc[1], inV, N*sizeof(mpfc_t));
   for (long int j = 0; j < N; j++) {
-    tmpc[2][j]= 2.L*creall(inV[j]*conjl(inQ[j]*inQ[j]))*overN;
-    tmpc[3][j]= inV[j]*conjl(inV[j])+4.L*sigma*conf.dq[j]*cimagl(tmpc[0][j]*conjl(inQ[j]));
+    mpfr_set(tmpc[0][j].re, inQ[j].re, MODE);
+    mpfr_set(tmpc[0][j].im, inQ[j].im, MODE);
+    mpfr_set(tmpc[1][j].re, inV[j].re, MODE);
+    mpfr_set(tmpc[1][j].im, inV[j].im, MODE);
+  }
+  //fftwl_execute(ift0); 
+  //fftwl_execute(ift1); 
+  mpfft_execute(ift0);
+  mpfft_execute(ift1);
+  //memset(tmpc[0]+N/2, 0, N/2*sizeof(mpfc_t));
+  //memset(tmpc[1]+N/2, 0, N/2*sizeof(mpfc_t));
+  for (long int j = 0; j < N/2; j++) {
+    mpfr_set_ui(tmpc[0][N/2+j].re, 0, MODE);
+    mpfr_set_ui(tmpc[0][N/2+j].im, 0, MODE);
+    mpfr_set_ui(tmpc[1][N/2+j].re, 0, MODE);
+    mpfr_set_ui(tmpc[1][N/2+j].im, 0, MODE);
+    //tmpc[0][j] = -1.IL*j*tmpc[0][j]*overN;
+    //tmpc[1][j] = -1.IL*j*tmpc[1][j]*overN;
+    mpfr_set(buf, tmpc[0][j].re, MODE);
+    mpfr_mul_si(tmpc[0][j].re, tmpc[0][j].im,  j, MODE);
+    mpfr_mul_si(tmpc[0][j].im,           buf, -j, MODE);
+    mpfr_mul(tmpc[0][j].re, tmpc[0][j].re, overN, MODE);
+    mpfr_mul(tmpc[0][j].im, tmpc[0][j].im, overN, MODE);
+
+    mpfr_set(buf, tmpc[1][j].re, MODE);
+    mpfr_mul_si(tmpc[1][j].re, tmpc[1][j].im,  j, MODE);
+    mpfr_mul_si(tmpc[1][j].im,           buf, -j, MODE);
+    mpfr_mul(tmpc[1][j].re, tmpc[1][j].re, overN, MODE);
+    mpfr_mul(tmpc[1][j].im, tmpc[1][j].im, overN, MODE);
+  }
+  //fftwl_execute(ft0);
+  //fftwl_execute(ft1);
+  mpfft_execute(ft0);
+  mpfft_execute(ft1);
+  for (long int j = 0; j < N; j++) {
+    //tmpc[2][j]= 2.L*creall(inV[j]*conjl(inQ[j]*inQ[j]))*overN;
+    mpfr_mul(buf, inQ[j].im, inQ[j].im, MODE);
+    mpfr_fms(buf, inQ[j].re, inQ[j].re, buf, MODE);
+    mpfr_mul(buf, inV[j].re, buf, MODE);
+    mpfr_mul_ui(tmpc[2][j].re, buf, 2, MODE);
+    mpfr_mul(buf, inQ[j].re, inQ[j].im, MODE);
+    mpfr_mul(buf, inV[j].im, buf, MODE);
+    mpfr_mul_ui(buf, buf, 4, MODE);
+    mpfr_add(tmpc[2][j].re, tmpc[2][j].re, buf, MODE);
+    mpfr_set_ui(tmpc[2][j].im, 0, MODE);
+    //tmpc[3][j]= inV[j]*conjl(inV[j])+4.L*sigma*conf.dq[j]*cimagl(tmpc[0][j]*conjl(inQ[j]));
+    mpfr_mul(buf, inV[j].im, inV[j].im, MODE);
+    mpfr_fma(tmpc[3][j].re, inV[j].re, inV[j].re, buf, MODE);
+    
+    mpfr_mul(buf, tmpc[0][j].re, inQ[j].im, MODE);
+    mpfr_fms(buf, tmpc[0][j].im, inQ[j].re, buf, MODE);
+    mpfr_mul(buf, buf, conf.dq[j], MODE);
+    mpfr_mul_ui(buf, buf, 4, MODE);
+    mpfr_fma   (tmpc[3][j].re, sigma, buf, tmpc[3][j].re);
+    mpfr_set_ui(tmpc[3][j].im, 0, MODE);
+    //tmpc[3][j]= tmpc[3][j]*overN;
+    mpfr_mul(tmpc[3][j].re, tmpc[3][j].re, overN, MODE);
+  }
+  /*
+  project(tmpc[3], tmpc[4]); 
+  complex_array_out("B.ph.old.txt", tmpc[4]);
+  for (long int j = 0; j < N; j++) {
     tmpc[3][j]= tmpc[3][j]*overN;
   }
-  //project(tmpc[3], tmpc[4]); 
-  //complex_array_out("B.ph.old.txt", tmpc[4]);
-  //for (long int j = 0; j < N; j++) {
-  //  tmpc[3][j]= tmpc[3][j]*overN;
-  //}
-  //complex_array_out("tmpc2.txt", tmpc[2]);
-  fftwl_execute(ift2);
-  fftwl_execute(ift3);
-  tmpc[4][0] = 0.L;
-  //b2B = tmpc[3][N/2-1];	b1B = tmpc[3][N/2+1];
-  b2U = tmpc[2][N/2-1];	b1U = tmpc[2][N/2+1];
+  complex_array_out("tmpc2.txt", tmpc[2]); 
+  */
+
+  //fftwl_execute(ift2);
+  //fftwl_execute(ift3);
+  mpfft_execute(ift2);
+  mpfft_execute(ift3);
+  //tmpc[4][0] = 0.L;
+  mpfr_set_ui(tmpc[4][0].re, 0, MODE);
+  mpfr_set_ui(tmpc[4][0].im, 0, MODE);
+  /*b2B = tmpc[3][N/2-1];	b1B = tmpc[3][N/2+1];*/
+
+  //b2U = tmpc[2][N/2-1];	b1U = tmpc[2][N/2+1];
+  mpfr_set(b2U.re, tmpc[2][N/2-1].re, MODE);
+  mpfr_set(b2U.im, tmpc[2][N/2-1].im, MODE);
+  mpfr_set(b1U.re, tmpc[2][N/2+1].re, MODE);
+  mpfr_set(b1U.im, tmpc[2][N/2+1].im, MODE);
   for (long int j = 1; j < N/2 - 1; j++) {
-    //b1B = b1B*w1 + tmpc[3][N/2+1+j];
-    //b2B = b2B*w2 + tmpc[3][N/2-1-j];
-    b1U = b1U*w1 + tmpc[2][N/2+1+j];
-    b2U = b2U*w2 + tmpc[2][N/2-1-j];
+    /*
+    b1B = b1B*w1 + tmpc[3][N/2+1+j];
+    b2B = b2B*w2 + tmpc[3][N/2-1-j];
+    */
+    
+    //b1U = b1U*w1 + tmpc[2][N/2+1+j];
+    mpfr_fms(bufc.re, b1U.im, w1.im, tmpc[2][N/2+1+j].re, MODE);
+    mpfr_fms(bufc.re, b1U.re, w1.re, bufc.re, MODE);
+
+    mpfr_fma(bufc.im, b1U.re, w1.im, tmpc[2][N/2+1+j].im, MODE);
+    mpfr_fma(bufc.im, b1U.im, w1.re, bufc.im, MODE);
+
+    mpfr_set(b1U.re, bufc.re, MODE);
+    mpfr_set(b1U.im, bufc.im, MODE);
+    //b2U = b2U*w2 + tmpc[2][N/2-1-j];
+    mpfr_fms(bufc.re, b2U.im, w2.im, tmpc[2][N/2-1-j].re, MODE);
+    mpfr_fms(bufc.re, b2U.re, w2.re, bufc.re, MODE);
+
+    mpfr_fma(bufc.im, b2U.re, w2.im, tmpc[2][N/2-1-j].im, MODE);
+    mpfr_fma(bufc.im, b2U.im, w2.re, bufc.im, MODE);
+
+    mpfr_set(b2U.re, bufc.re, MODE);
+    mpfr_set(b2U.im, bufc.im, MODE);
   }
-  //printf("b1U = %23.18LE\t%23.18LE\n", creall(b1U), cimagl(b1U));
-  //printf("b2U = %23.18LE\t%23.18LE\n", creall(b2U), cimagl(b2U));
-  //exit(1);
-  memset(tmpc[2]+N/2, 0, N/2*sizeof(mpfc_t));
-  memset(tmpc[3]+N/2, 0, N/2*sizeof(mpfc_t));
-  memset(tmpc[4]+N/2, 0, N/2*sizeof(mpfc_t));
-  tmpc[2][0] = 0.5L*tmpc[2][0];
+  /*
+  printf("b1U = %23.18LE\t%23.18LE\n", creall(b1U), cimagl(b1U));
+  printf("b2U = %23.18LE\t%23.18LE\n", creall(b2U), cimagl(b2U));
+  exit(1);
+  */
+  //memset(tmpc[2]+N/2, 0, N/2*sizeof(mpfc_t));
+  //memset(tmpc[3]+N/2, 0, N/2*sizeof(mpfc_t));
+  //memset(tmpc[4]+N/2, 0, N/2*sizeof(mpfc_t));
+  for (long int j = 0; j < N/2; j++) {
+    mpfr_set_ui(tmpc[2][N/2+j].re, 0, MODE);
+    mpfr_set_ui(tmpc[2][N/2+j].im, 0, MODE);
+    mpfr_set_ui(tmpc[3][N/2+j].re, 0, MODE);
+    mpfr_set_ui(tmpc[3][N/2+j].im, 0, MODE);
+    mpfr_set_ui(tmpc[4][N/2+j].re, 0, MODE);
+    mpfr_set_ui(tmpc[4][N/2+j].im, 0, MODE);
+  } 
+  //tmpc[2][0] = 0.5L*tmpc[2][0];
+  mpfr_div_ui(tmpc[2][0].re, tmpc[2][0].re, 2, MODE);
+  mpfr_div_ui(tmpc[2][0].im, tmpc[2][0].im, 2, MODE);
   //tmpc[3][0] = 0.5L*tmpc[3][0];  
   for (long int j = 0; j < N/2; j++) {
-    tmpc[3][j] = -1.IL*j*tmpc[3][j];
-    tmpc[4][j] = -1.IL*j*tmpc[2][j];
+    //tmpc[3][j] = -1.IL*j*tmpc[3][j];
+    mpfr_set   (buf, tmpc[3][j].re, MODE);
+    mpfr_mul_si(tmpc[3][j].re, tmpc[3][j].im, j, MODE);
+    mpfr_mul_si(tmpc[3][j].im, buf, -j, MODE);
+    //tmpc[4][j] = -1.IL*j*tmpc[2][j];
+    mpfr_mul_si(tmpc[4][j].re, tmpc[2][j].im,  j, MODE);
+    mpfr_mul_si(tmpc[4][j].im, tmpc[2][j].re, -j, MODE);
   }
-  fftwl_execute(ft2);
-  fftwl_execute(ft3);
-  fftwl_execute(ft4);
+  //fftwl_execute(ft2);
+  //fftwl_execute(ft3);
+  //fftwl_execute(ft4);
+  mpfft_execute(ft2);
+  mpfft_execute(ft3);
+  mpfft_execute(ft4);
   for (long int j = 0; j < N; j++) {
-    tmpc[2][j] += 0.5L*(b1U*w1 - b2U*w2);
-    //tmpc[3][j] += 0.5L*(b1B*w1 - b2B*w2); 	// thats irrelevant for B'
+    //tmpc[2][j] += 0.5L*(b1U*w1 - b2U*w2);
+    mpfr_mul(bufc.re, b2U.im, w2.im, MODE);
+    mpfr_fms(bufc.re, b2U.re, w2.re, bufc.re, MODE);
+    mpfr_fma(bufc.re, b1U.im, w1.im, bufc.re, MODE);
+    mpfr_fms(bufc.re, b1U.re, w1.re, bufc.re, MODE);
+    mpfr_div_ui(bufc.re, bufc.re, 2, MODE);
+
+    mpfr_mul(bufc.im, b2U.re, w2.im, MODE);
+    mpfr_fms(bufc.im, b1U.re, w1.im, bufc.im, MODE);
+    mpfr_fms(bufc.im, b2U.im, w2.re, bufc.im, MODE);
+    mpfr_fms(bufc.im, b1U.im, w1.re, bufc.im, MODE);
+    mpfr_div_ui(bufc.im, bufc.im, 2, MODE);
+    
+    mpfr_add(tmpc[2][j].re, tmpc[2][j].re, bufc.re, MODE);
+    mpfr_add(tmpc[2][j].im, tmpc[2][j].im, bufc.im, MODE);
+    /*tmpc[3][j] += 0.5L*(b1B*w1 - b2B*w2); 	// thats irrelevant for B' */
   }
   // Summary:
   // tmpc[0] <--  stores Q'
@@ -184,22 +318,96 @@ void compute_rhs(mpfc_t *inQ, mpfc_t *inV, mpfc_t *outQ, mpfc_t *outV) {
   // tmpc[3] <--  stores B'
   // tmpc[4] <--  stores U'
   for (long int j = 0; j < N; j++) {
-    outQ[j] = 0.5IL*conf.dq[j]*(2.L*tmpc[0][j]*tmpc[2][j]-tmpc[4][j]*inQ[j]);
-    outV[j] = g*(inQ[j]*inQ[j]-1.L)+1.IL*conf.dq[j]*(tmpc[2][j]*tmpc[1][j]-inQ[j]*inQ[j]*tmpc[3][j]);
-  }
-}
-*/
-/*
-void rk6_step(mpfc_t *inQ, mpfc_t *inV, mpfr_t dt) {
-  unsigned long 	N = state.number_modes;
-  mpfr_t		overN = 1.L/N;
+    //outQ[j] = 0.5IL*conf.dq[j]*(2.L*tmpc[0][j]*tmpc[2][j]-tmpc[4][j]*inQ[j]);
+    mpfr_div_ui(buf, conf.dq[j], 2, MODE);
 
-  memcpy(tQ, inQ, N*sizeof(mpfc_t)); 
-  memcpy(tV, inV, N*sizeof(mpfc_t)); 
+    mpfr_mul(bufc.re, tmpc[4][j].im, inQ[j].im, MODE);
+    mpfr_fms(bufc.re, tmpc[4][j].re, inQ[j].re, bufc.re, MODE);
+    mpfr_mul(bufc.im, tmpc[4][j].re, inQ[j].im, MODE);
+    mpfr_fma(bufc.im, tmpc[4][j].im, inQ[j].re, bufc.im, MODE);
+
+    mpfr_mul(outQ[j].re, bufc.re, buf, MODE);
+    mpfr_mul(outQ[j].im, bufc.im, buf, MODE);
+
+    mpfr_mul(bufc.re, tmpc[0][j].im, tmpc[2][j].im, MODE);
+    mpfr_fms(bufc.re, tmpc[0][j].re, tmpc[2][j].re, bufc.re, MODE);
+    mpfr_mul(bufc.im, tmpc[0][j].re, tmpc[2][j].im, MODE);
+    mpfr_fma(bufc.im, tmpc[0][j].im, tmpc[2][j].re, bufc.im, MODE); 
+    mpfr_mul_ui(bufc.re, bufc.re, 2, MODE);
+    mpfr_mul_ui(bufc.im, bufc.im, 2, MODE);
+
+    mpfr_sub(outQ[j].re, bufc.re, outQ[j].re, MODE);
+    mpfr_sub(outQ[j].im, bufc.im, outQ[j].im, MODE);
+
+    mpfr_mul(outQ[j].re, outQ[j].re, buf, MODE);
+    mpfr_mul(outQ[j].im, outQ[j].im, buf, MODE);
+
+    //outV[j] = g*(inQ[j]*inQ[j]-1.L)+1.IL*conf.dq[j]*(tmpc[2][j]*tmpc[1][j]-inQ[j]*inQ[j]*tmpc[3][j]);
+    //outV <- Q^2
+    mpfr_mul(outV[j].re, inQ[j].im, inQ[j].im, MODE);
+    mpfr_fms(outV[j].re, inQ[j].re, inQ[j].re, outV[j].re, MODE);
+   
+    mpfr_mul(outV[j].im, inQ[j].re, inQ[j].im, MODE);
+    mpfr_mul_ui(outV[j].im, outV[j].im, 2, MODE);
+
+    mpfr_mul(bufc.re, outV[j].re, tmpc[3][j].re, MODE);
+    mpfr_fms(bufc.re, outV[j].im, tmpc[3][j].im, bufc.re, MODE);
+    mpfr_fms(bufc.re, tmpc[2][j].im, tmpc[1][j].im, bufc.re, MODE);
+    mpfr_fms(bufc.re, tmpc[2][j].re, tmpc[1][j].re, bufc.re, MODE);
+    
+    mpfr_mul(bufc.im,    outV[j].re, tmpc[3][j].im, MODE);
+    mpfr_fms(bufc.im, tmpc[2][j].re, tmpc[1][j].im, bufc.im, MODE);
+    mpfr_fms(bufc.im,    outV[j].im, tmpc[3][j].re, bufc.im, MODE);
+    mpfr_fms(bufc.im, tmpc[2][j].im, tmpc[1][j].re, bufc.im, MODE);
+    // bufc <- (tmpc[2][j]*tmpc[1][j] - Q^2*tmpc[3]) 
+    // stopped here (bufc <- whats in bracket, outV <- Q^2)
+    mpfr_mul(bufc.re, bufc.re, conf.dq[j], MODE);
+    mpfr_mul(bufc.im, bufc.im, conf.dq[j], MODE);
+
+    mpfr_set(buf, bufc.re, MODE);
+    mpfr_neg(bufc.re, bufc.im, MODE);
+    mpfr_set(bufc.im, buf, MODE);
+ 
+    mpfr_sub_ui(outV[j].re, outV[j].re, 1, MODE);
+    mpfr_mul(outV[j].re, outV[j].re, g, MODE);
+    mpfr_mul(outV[j].im, outV[j].im, g, MODE);
+
+    mpfr_add(outV[j].re, outV[j].re, bufc.re, MODE);
+    mpfr_add(outV[j].im, outV[j].im, bufc.im, MODE);
+  }
+  // verification needed
+  // ------------------------
+  mpfr_clears(overN, sigma, g, buf, (mpfr_ptr) NULL);
+  mpfr_clears(w1.re, w1.im, (mpfr_ptr) NULL);
+  mpfr_clears(w2.re, w2.im, (mpfr_ptr) NULL);
+  mpfr_clears(b1U.re, b1U.im, (mpfr_ptr) NULL);
+  mpfr_clears(b2U.re, b2U.im, (mpfr_ptr) NULL);
+  mpfr_clears(bufc.re, bufc.im, (mpfr_ptr) NULL);
+}
+
+
+void rk6_step(mpfc_t *inQ, mpfc_t *inV, mpfr_t dt) {
+  long int	 	N = 1<<state.nbits;
+  mpfr_t		overN;
+  
+  mpfr_init2(overN, state.precision);
+  mpfr_set_ui(overN,     1, MODE);
+  mpfr_div_si(overN, overN, N, MODE);
+
+  //memcpy(tQ, inQ, N*sizeof(mpfc_t)); 
+  //memcpy(tV, inV, N*sizeof(mpfc_t)); 
+  for (long int j = 0; j < N; j++) {
+    mpfr_set(tQ[j].re, inQ[j].re, MODE);
+    mpfr_set(tQ[j].im, inQ[j].im, MODE);
+    mpfr_set(tV[j].re, inV[j].re, MODE);
+    mpfr_set(tV[j].im, inV[j].im, MODE);
+  }
+  // start here on Wednesday.
+  
   //complex_array_out("inV.txt", inV);
   //complex_array_out("inQ.txt", inQ);
 
-  compute_rhs(tQ, tV, kq[0], kv[0]);
+  compute_rhs(tQ, tV, kq[0], kv[0]); // working here
   for (long int j = 0; j < N; j++) {
     tQ[j] = inQ[j] + one_third*dt*kq[0][j];
     tV[j] = inV[j] + one_third*dt*kv[0][j];
@@ -253,55 +461,73 @@ void rk6_step(mpfc_t *inQ, mpfc_t *inV, mpfr_t dt) {
   memcpy(inQ, tmpc[0], N*sizeof(mpfc_t));
   memcpy(inV, tmpc[1], N*sizeof(mpfc_t));
 }
-*/
 
-/*
+
+
 void evolve_rk6() {
   unsigned int		QC_pass = 1;
   unsigned long 	counter = 0, j = 0, skip = 10;
   unsigned long		ref_counter = 0;
-  char 			filename1[80];
-  char 			filename2[80];
-  mpfr_t		M_TOL = 2.0E-15L;
-  mpfr_t		R_TOL = 4.0E-16L;
-  mpfr_t		tshift = 0.L;
-  mpfr_t   	time = 0.L, Ham = 0.L;
-  mpfr_t   	dt = cfl*2.L*PI*conf.scaling/state.number_modes;
+  char 			filename1[80], filename2[80];
+
+  mpfr_t		M_TOL, R_TOL;
+  mpfr_t   	        time, tshift, Ham, dt;
+  //mpfr_t   	        dt = cfl*2.L*PI*conf.scaling/state.number_modes;
+  
+  mpfr_inits2(state.precision, M_TOL, R_TOL, tshift, (mpfr_ptr) NULL);
+  mpfr_inits2(state.precision, time, Ham, dt, (mpfr_ptr) NULL);
+  mpfr_set_d(M_TOL, 2.0e-15, MODE);
+  mpfr_set_d(R_TOL, 4.0e-16, MODE);
+  mpfr_set_ui(time,    0, MODE);
+  mpfr_set_ui(tshift,  0, MODE);
+  mpfr_set_ui(Ham,     0, MODE);
+  mpfr_mul(dt, Pie, conf.scaling, MODE);
+  mpfr_mul(dt, cfl, dt, MODE);
+  mpfr_div_ui( dt, dt, 1<<(state.nbits-1), MODE);
+
+
   FILE *fh_time	= fopen("time_dependence.txt","w");
   fprintf(fh_time, "# 1. time 2. Kinetic 3. Potential 4. Momentum X 5. Momentum Y\n\n");
   fclose(fh_time);
+
   map_quality_fourier(data[0], data[1], M_TOL, &QC_pass);
   sprintf(filename2, "./data/spec_%04lu.txt", counter);
   spec_out(filename2, tmpc[0], tmpc[1]);
+ 
   convertQtoZ(data[0], tmpc[5]);
   sprintf(filename1, "./data/surf_%04lu.txt", counter);
-  surface_out(filename1, tmpc[5]);
+  surface_out(filename1, tmpc[5]);  // checks out
+  
   if (PADE_TEST) {
     exit(1);
   }
   restore_potential(data[0], data[1], tmpc[5]);  
+  
   fh_time = fopen("time_dependence.txt","a");
-  fprintf(fh_time, "%.17LE\t%.17LE\t%.17LE\t", state.time, state.kineticE/PI, state.potentialE/PI); 
-  fprintf(fh_time, "%.17LE\t%.17LE\n", cimagl(state.momentum), creall(state.momentum)); 
+  mpfr_fprintf(fh_time, "%.17Re\t%.17Re\t%.17Re\t", state.time, state.kineticE, state.potentialE); 
+  mpfr_fprintf(fh_time, "%.17Re\t%.17Re\n", state.momentum.im, state.momentum.re); 
   fclose(fh_time);
-  Ham = (state.kineticE + state.potentialE)/PI;
+  mpfr_add(Ham, state.kineticE, state.potentialE, MODE);
   sprintf(filename1, "./aux/data_%04lu.txt", counter);
   output_data(filename1, tmpc[5]);
-  printf("T = %23.16LE\tH = %23.16LE\n", state.time, Ham);
-
-  //sqrtl(state.number_modes/4096.L)
+  print_constants();       // all constants checked out (mean level, potential+kinetic energy)
+  //mpfr_printf("T = %23.16Re\tH = %23.16Re\n", state.time, Ham);
+  
   if (QC_pass == 0) {
     printf("Bad quality map at start.\tStop!\n");
     exit(1);
   } else if (QC_pass == 2) {
     printf("Warning! Map is over-resolved at start.\n");
   }
+  
   while (QC_pass) {
     rk6_step(data[0], data[1], dt);  
-    time = (j+1)*dt;
+    //time = (j+1)*dt;
+    mpfr_mul_ui(time, dt, j+1, MODE);
     j++;
-    state.time = time + tshift;
-
+    //state.time = time + tshift;
+    mpfr_add(state.time, time, tshift, MODE);
+/*
     map_quality_fourier(data[0], data[1], M_TOL, &QC_pass); 
     if (QC_pass == 0) {
       ref_counter++;
@@ -385,8 +611,9 @@ void evolve_rk6() {
         //optimal_pade(filename2, tmpc[5]);
       }
     }
+    */
   }
   printf("Simulation Stops\n");
-  exit(1);
+  exit(0);
 }
-*/
+

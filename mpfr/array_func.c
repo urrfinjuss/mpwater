@@ -144,52 +144,176 @@ void compute_zero_mode_complex(mpfc_t *in, mpfc_t S0, mpfc_t *out) {
 }
 
 
-/*
-void div_jacobian(fftwl_complex *in, fftwl_complex *out) {
+
+void div_jacobian(mpfc_t *in, mpfc_t *out) {
   // solve a tridiagonal system z_q q_u = b
   // b        -- inverse Fourier coefficients: b = Z_u - 1
   // Note:    -- b must have b[0] = 0, like Z_u - 1
   // Note:       not in-place safe.
-  fftwl_complex 	w = cexpl(1.IL*conf.origin_offset);
-  long double 		b = 0.5L*(1.L + powl(conf.scaling, 2))/conf.scaling;
-  long double 		xi = (1.L - powl(conf.scaling, 2))/(1.L + powl(conf.scaling, 2));
+  long int 		N = 1<<state.nbits;
+  mpfc_t		w;
+  mpfr_t 		b, xi;
+  mpfr_t 		buf1, buf2, buf3, buf4, buf5;
+  
+  
+   
+  mpfr_inits2(state.precision, w.re, w.im, b, xi, (mpfr_ptr) NULL);
+  mpfr_inits2(state.precision, buf1, buf2, buf3, buf4, buf5, (mpfr_ptr) NULL);
+  //fftwl_complex 	w = cexpl(1.IL*conf.origin_offset);
+  mpfr_sin_cos(w.im, w.re, conf.origin_offset, MODE);
+  //long double 		b = 0.5L*(1.L + powl(conf.scaling, 2))/conf.scaling;
+  //long double 		xi = (1.L - powl(conf.scaling, 2))/(1.L + powl(conf.scaling, 2));
+  mpfr_mul(buf1, conf.scaling, conf.scaling, MODE);
+  mpfr_add_ui(buf2, buf1, 1, MODE);
+  mpfr_ui_sub(buf1, 1, buf1, MODE);
+  mpfr_div(b, buf2, conf.scaling, MODE);
+  mpfr_div_ui(b, b, 2, MODE);
+  mpfr_div(xi, buf1, buf2, MODE);
 
+  
   fft_shift(in);
-  tmpc[2][0] = -0.5L*xi*conjl(w);
-  for (long int j = 1; j < state.number_modes; j++) {
-    tmpc[2][j] = tmpc[2][0]/(1.L - conjl(tmpc[2][0])*tmpc[2][j-1]); 
+  //tmpc[2][0] = -0.5L*xi*conjl(w);
+  mpfr_mul(tmpc[2][0].re, xi, w.re, MODE);
+  mpfr_mul(tmpc[2][0].im, xi, w.im, MODE);
+  mpfr_div_si(tmpc[2][0].re, tmpc[2][0].re, -2, MODE);
+  mpfr_div_si(tmpc[2][0].im, tmpc[2][0].im,  2, MODE);
+  for (long int j = 1; j < N; j++) {
+    //tmpc[2][j] = tmpc[2][0]/(1.L - conjl(tmpc[2][0])*tmpc[2][j-1]); 
+    mpfr_mul(buf1, tmpc[2][0].re, tmpc[2][j-1].re, MODE);
+    mpfr_fma(buf1, tmpc[2][0].im, tmpc[2][j-1].im, buf1, MODE);
+    mpfr_mul(buf2, tmpc[2][0].im, tmpc[2][j-1].re, MODE);
+    mpfr_fms(buf2, tmpc[2][0].re, tmpc[2][j-1].im, buf2, MODE);
+
+    mpfr_ui_sub(buf1, 1, buf1, MODE);
+    mpfr_neg(buf2, buf2, MODE);
+
+    mpfr_mul(buf3, buf1, buf1, MODE);
+    mpfr_fma(buf3, buf2, buf2, buf3, MODE);
+
+    mpfr_mul(tmpc[2][j].re, buf1, tmpc[2][0].re, MODE);
+    mpfr_fma(tmpc[2][j].re, buf2, tmpc[2][0].im, tmpc[2][j].re, MODE);
+    mpfr_mul(tmpc[2][j].im, buf2, tmpc[2][0].re, MODE);
+    mpfr_fms(tmpc[2][j].im, buf1, tmpc[2][0].im, tmpc[2][j].im, MODE);
+
+    mpfr_div(tmpc[2][j].re, tmpc[2][j].re, buf3, MODE);
+    mpfr_div(tmpc[2][j].im, tmpc[2][j].im, buf3, MODE);
   }
-  tmpc[3][0] = in[0]/b;
-  for (long int j = 1; j < state.number_modes; j++) {
-    tmpc[3][j] = in[j]/b - conjl(tmpc[2][0])*tmpc[3][j-1];
-    tmpc[3][j] = tmpc[3][j]/(1.L - conjl(tmpc[2][0])*tmpc[2][j-1]);
+  //tmpc[3][0] = in[0]/b;
+  mpfr_div(tmpc[3][0].re, in[0].re, b, MODE);
+  mpfr_div(tmpc[3][0].im, in[0].im, b, MODE);
+  for (long int j = 1; j < N; j++) {
+    //tmpc[3][j] = in[j]/b - conjl(tmpc[2][0])*tmpc[3][j-1];
+    //tmpc[3][j] = in[j]/b - conjl(tmpc[2][0])*tmpc[3][j-1];
+    mpfr_mul(buf1, tmpc[2][0].re, tmpc[3][j-1].re, MODE);
+    mpfr_fma(buf1, tmpc[2][0].im, tmpc[3][j-1].im, buf1, MODE);
+    mpfr_mul(buf2, tmpc[2][0].im, tmpc[3][j-1].re, MODE);
+    mpfr_fms(buf2, tmpc[2][0].re, tmpc[3][j-1].im, buf2, MODE);
+
+    mpfr_div(tmpc[3][j].re, in[j].re, b, MODE);
+    mpfr_div(tmpc[3][j].im, in[j].im, b, MODE);
+    mpfr_sub(tmpc[3][j].re, tmpc[3][j].re, buf1, MODE);
+    mpfr_sub(tmpc[3][j].im, tmpc[3][j].im, buf2, MODE);
+
+    //tmpc[3][j] = tmpc[3][j]/(1.L - conjl(tmpc[2][0])*tmpc[2][j-1]);
+    //tmpc[3][j] = tmpc[3][j]/(1.L - conjl(tmpc[2][0])*tmpc[2][j-1]);
+    mpfr_mul(buf1, tmpc[2][0].re, tmpc[2][j-1].re, MODE);
+    mpfr_fma(buf1, tmpc[2][0].im, tmpc[2][j-1].im, buf1, MODE);
+    mpfr_mul(buf2, tmpc[2][0].im, tmpc[2][j-1].re, MODE);
+    mpfr_fms(buf2, tmpc[2][0].re, tmpc[2][j-1].im, buf2, MODE);
+
+    mpfr_ui_sub(buf1, 1, buf1, MODE);
+    mpfr_neg(buf2, buf2, MODE);    
+
+    mpfr_mul(buf3, buf1, buf1, MODE);
+    mpfr_fma(buf3, buf2, buf2, buf3, MODE);
+
+    mpfr_mul(buf4, buf1, tmpc[3][j].re, MODE);
+    mpfr_fma(buf4, buf2, tmpc[3][j].im, buf4, MODE);
+    mpfr_mul(buf5, buf2, tmpc[3][j].re, MODE);
+    mpfr_fms(buf5, buf1, tmpc[3][j].im, buf5, MODE);
+
+    mpfr_div(tmpc[3][j].re, buf4, buf3, MODE);
+    mpfr_div(tmpc[3][j].im, buf5, buf3, MODE);
   } 
-  out[state.number_modes-1] = tmpc[3][state.number_modes-1];
-  for (long int j = state.number_modes-2; j > -1; j--) {
-    out[j] = tmpc[3][j]-tmpc[2][j]*out[j+1];
+  //out[state.number_modes-1] = tmpc[3][state.number_modes-1];
+  mpfr_set(out[N-1].re, tmpc[3][N-1].re, MODE);
+  mpfr_set(out[N-1].im, tmpc[3][N-1].im, MODE);
+  
+  for (long int j = N-2; j > -1; j--) {
+    //out[j]     = tmpc[3][j]-tmpc[2][j]*out[j+1];
+    mpfr_mul(buf1, tmpc[2][j].im, out[j+1].im, MODE);
+    mpfr_fms(buf1, tmpc[2][j].re, out[j+1].re, buf1, MODE);
+    mpfr_mul(buf2, tmpc[2][j].re, out[j+1].im, MODE);
+    mpfr_fma(buf2, tmpc[2][j].im, out[j+1].re, buf2, MODE);
+
+    mpfr_sub(out[j].re, tmpc[3][j].re, buf1, MODE);
+    mpfr_sub(out[j].im, tmpc[3][j].im, buf2, MODE);
   }
   fft_shift(out);
   fft_shift(in);
-}
-*/
 
-/*
-void linear_solve(fftwl_complex *a, fftwl_complex *b, fftwl_complex *x) {
+  mpfr_clears(w.re, w.im, b, xi, (mpfr_ptr) NULL);
+  mpfr_clears(buf1, buf2, buf3, buf4, buf5, (mpfr_ptr) NULL);
+}
+
+
+
+void linear_solve(mpfc_t *a, mpfc_t *b, mpfc_t *x) {
   // inverts a*x = b to find x by series inversion
   // a,b   -- input inverse Fourier coefficients,
   // x     -- output inverse Fourier coefficients
   // Note: not in-place safe: a and x cannot be the same
-  x[0] = b[0]/a[0];
-  for (long int j = 1; j < state.number_modes/2; j++) {
-    fftwl_complex sum = 0.L;
+  
+  long int N = 1<<state.nbits;
+  mpfr_t buf;
+  mpfc_t sum;
+
+  mpfr_inits2(state.precision, buf, sum.re, sum.im, (mpfr_ptr) NULL);
+  //x[0] = b[0]/a[0];
+  mpfr_mul(buf, a[0].im, a[0].im, MODE);
+  mpfr_fma(buf, a[0].re, a[0].re, buf, MODE);
+  
+  mpfr_mul(x[0].re, b[0].re, a[0].re, MODE);
+  mpfr_fma(x[0].re, b[0].im, a[0].im, x[0].re, MODE);
+  mpfr_mul(x[0].im, b[0].re, a[0].im, MODE);
+  mpfr_fms(x[0].im, b[0].im, a[0].re, x[0].im, MODE);
+ 
+  mpfr_div(x[0].re, x[0].re, buf, MODE);
+  mpfr_div(x[0].im, x[0].im, buf, MODE); 
+
+
+  for (long int j = 1; j < N/2; j++) {
+    //fftwl_complex sum = 0.L;
+    mpfr_set_ui(sum.re, 0, MODE);
+    mpfr_set_ui(sum.im, 0, MODE);
     for (long int l = j-1; l > -1; l--) {
-      sum += a[j-l]*x[l];
+      //sum += a[j-l]*x[l];
+      mpfr_fms(sum.re, a[j-l].im, x[l].im, sum.re, MODE);
+      mpfr_fms(sum.re, a[j-l].re, x[l].re, sum.re, MODE);
+      mpfr_fma(sum.im, a[j-l].re, x[l].im, sum.im, MODE);
+      mpfr_fma(sum.im, a[j-l].im, x[l].re, sum.im, MODE);
     }
-    x[j] = (b[j] - sum)/a[0];
+    //x[j] = (b[j] - sum)/a[0];
+    mpfr_sub(sum.re, b[j].re, sum.re, MODE);
+    mpfr_sub(sum.im, b[j].im, sum.im, MODE);
+
+    mpfr_mul(x[j].re, sum.re, a[0].re, MODE);
+    mpfr_fma(x[j].re, sum.im, a[0].im, x[j].re, MODE);
+    mpfr_mul(x[j].im, sum.re, a[0].im, MODE);
+    mpfr_fms(x[j].im, sum.im, a[0].re, x[j].im, MODE);
+ 
+    mpfr_div(x[j].re, x[j].re, buf, MODE);
+    mpfr_div(x[j].im, x[j].im, buf, MODE); 
+    
   }
-  memset(x + state.number_modes/2, 0, (state.number_modes/2)*sizeof(fftwl_complex));
+  //memset(x + state.number_modes/2, 0, (state.number_modes/2)*sizeof(fftwl_complex));
+  for (long int j = 0; j < N/2; j++) {
+    mpfr_set_ui(x[N/2+j].re, 0, MODE);
+    mpfr_set_ui(x[N/2+j].im, 0, MODE);
+  }
+  mpfr_clears(buf, sum.re, sum.im, (mpfr_ptr) NULL);
 }
-*/
+
 
 void inverse(mpfc_t *a, mpfc_t *x) {
   // inverts a*x = 1 to find x by series inversion

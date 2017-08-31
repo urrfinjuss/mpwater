@@ -1,5 +1,5 @@
 #include "header.h"
-#include <quadmath.h>
+//#include <quadmath.h>
 
 //static fftwl_complex *coeffQ, *coeffP;
 static long double *M, *Ens;

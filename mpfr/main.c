@@ -53,11 +53,7 @@ int main( int argc, char* argv[]) {
     case 4:
       printf("Starting new simulation\n");
       set_mapping();
-      printf("set_mapping() complete\n");
-      print_constants();
-      printf("printf_constants() OK\n");
       set_initial_data();
-      printf("set_initial_data() complete\n");
       /*
       convertQtoZ(data[0], tmpc[5]);  
       restore_potential(data[0], data[1], tmpc[2]);
@@ -76,10 +72,6 @@ int main( int argc, char* argv[]) {
       printf("Unknown text format\n");
       exit(1);
   }
-  
-  print_constants();
-  exit(0);
-  /*
   evolve_rk6(data[0], data[1]);
-  */
+  
 }

@@ -1,4 +1,4 @@
-//#include <math.h>
+#include <math.h>
 //#include <complex.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,6 +6,7 @@
 #include <float.h>
 //#include <fftw3.h>
 #include <mpfr.h>
+#include <mpfft_header.h>
 #include <mpfft_serial.h>
 
 #define MIN(a,b) ((a) < (b) ? a : b)
@@ -22,21 +23,20 @@ typedef struct multiprecision_complex {
   mpfr_t re, im;
 } mpfc_t;
 */
-
 typedef struct input {
   char restart_name[128];		// restart filename 
   char txt_format[64];			// format of text file (pade, ascii, none)
   char time_march[64];			// time-marching (rk4)
   mpfr_prec_t precision;
-  mpfr_t gravity;			// free fall acceleration
-  mpfr_t surface_tension;		// surface tension
-  mpfr_t tolerance;		// tolerance for refinement
-  mpfr_t mean_level;		// mean level fluid
-  mpfr_t kineticE;			// kinetic energy
-  mpfr_t potentialE;		// potential energy
-  mpfr_t final_time;		// simulation time
-  mpfr_t time;			// stores current time
-  mpfc_t momentum;		// momentum P = px + i*py
+  mpfr_t gravity;			// free fall acceleration	*
+  mpfr_t surface_tension;		// surface tension		*
+  mpfr_t tolerance;			// tolerance for refinement	*
+  mpfr_t mean_level;			// mean level fluid		x
+  mpfr_t kineticE;			// kinetic energy		x
+  mpfr_t potentialE;			// potential energy		x
+  mpfr_t final_time;			// simulation time		*
+  mpfr_t time;				// stores current time		x
+  mpfc_t momentum;			// momentum P = px + i*py	x
   unsigned long int refinement_counter;	// refinement counter
   unsigned long int number_poles;	// number of poles
   unsigned long int nbits;	// number of grid points 2^nbits
@@ -44,7 +44,7 @@ typedef struct input {
 } params, *params_ptr;
 
 typedef struct conformal_mapping {
-  mpfc_t *w;			// Fourier multipliers
+  mpfc_t 	*w;			// Fourier multipliers
   mpfr_t 	*dq;			// dq/du
   mpfr_t 	scaling;		// conformal map scaling factor
   mpfr_t 	image_offset;		// accumulation center in u-plane

@@ -55,6 +55,9 @@ void read_input(char *fname) {
         state.number_poles = atol(value);
       }
     }
+    mpfr_inits2(state.precision, state.mean_level, state.time, (mpfr_ptr) NULL);
+    mpfr_inits2(state.precision, state.potentialE, state.kineticE, (mpfr_ptr) NULL);
+    mpfr_inits2(state.precision, state.momentum.re, state.momentum.im, (mpfr_ptr) NULL);
     mpfft_init(state.precision); // init mpfft routines
   }
 }
@@ -138,8 +141,6 @@ void set_initial_data() {
   // finished setting Z.  -- checked and validated.
 
   complex_array_out("Z0.txt", data[0]);
-  printf("\tcomplex_array_out() complete.\n");
-  
   convertZtoQ(data[0], data[0]);  // convert Z-tilde to Q
   complex_array_out("Q0.txt", data[0]); // checks out good
   

@@ -110,14 +110,24 @@ void deallocate_memory() {
   mpfft_destroy_plan(ift4);
 }
 */
-/*
+
 void fft_shift(mpfc_t *in){
-  for (long int j = 0; j < state.number_modes/2; j++) {
-    aux_array[j] 		= in[state.number_modes/2+j];
-    aux_array[j+state.number_modes/2]	= in[j]; 
+  long int N = 1<<state.nbits;
+  mpfc_t buf;
+  mpfr_inits2(state.precision, buf.re, buf.im, (mpfr_ptr) NULL);
+  for (long int j = 0; j < N/2; j++) {
+    //aux_array[j] 		= in[state.number_modes/2+j];
+    //aux_array[j+state.number_modes/2]	= in[j]; 
+    mpfr_set(buf.re, in[j].re, MODE);
+    mpfr_set(buf.im, in[j].im, MODE);
+    mpfr_set(in[j].re, in[N/2+j].re, MODE);
+    mpfr_set(in[j].im, in[N/2+j].im, MODE);
+    mpfr_set(in[N/2+j].re, buf.re, MODE);
+    mpfr_set(in[N/2+j].im, buf.im, MODE);
   }
-  memcpy(in, aux_array, state.number_modes*sizeof(mpfc_t));
+  //memcpy(in, aux_array, state.number_modes*sizeof(mpfc_t));
+  mpfr_clears(buf.re, buf.im, (mpfr_ptr) NULL);
 }
-*/
+
 
 
