@@ -295,7 +295,7 @@ void map_quality(mpfc_t *in1, mpfc_t *in2, mpfr_t tol, unsigned int *QC_pass) {
   //nqc_ratio = fmaxl(nqc_ratio, narrow_sum2/sqrtl(1.L+powl(full_sum2, 2)));
   //if (qc_ratio < tol) {
   if (mpfr_cmp(qc, tol) < 0) {
-        mpfr_printf("QC Pass\nQC ratio is %.9Re\n", qc);
+        //mpfr_printf("QC Pass\nQC ratio is %.9Re\n", qc);
 	*QC_pass = 1;
 	//if (nqc_ratio < tol) *QC_pass = 2;
   } else {

@@ -84,7 +84,8 @@ void compute_rhs(fftwl_complex *inQ, fftwl_complex *inV, fftwl_complex *outQ, ff
   //for (long int j = 0; j < N; j++) {
   //  tmpc[3][j]= tmpc[3][j]*overN;
   //}
-  //complex_array_out("tmpc2.txt", tmpc[2]);
+  //complex_array_out("tmpc2.txt", tmpc[2]);   // tmpc[2] checks out
+  //complex_array_out("tmpc3.txt", tmpc[3]);   // tmpc[3] checks out
   fftwl_execute(ift2);
   fftwl_execute(ift3);
   tmpc[4][0] = 0.L;
@@ -134,10 +135,10 @@ void rk6_step(fftwl_complex *inQ, fftwl_complex *inV, long double dt) {
 
   memcpy(tQ, inQ, N*sizeof(fftwl_complex)); 
   memcpy(tV, inV, N*sizeof(fftwl_complex)); 
-  //complex_array_out("inV.txt", inV);
-  //complex_array_out("inQ.txt", inQ);
 
   compute_rhs(tQ, tV, kq[0], kv[0]);
+  // check rhs
+  // end check rhs
   for (long int j = 0; j < N; j++) {
     tQ[j] = inQ[j] + one_third*dt*kq[0][j];
     tV[j] = inV[j] + one_third*dt*kv[0][j];

@@ -6,7 +6,6 @@
 #include <float.h>
 //#include <fftw3.h>
 #include <mpfr.h>
-#include <mpfft_header.h>
 #include <mpfft_serial.h>
 
 #define MIN(a,b) ((a) < (b) ? a : b)
@@ -39,7 +38,7 @@ typedef struct input {
   mpfc_t momentum;			// momentum P = px + i*py	x
   unsigned long int refinement_counter;	// refinement counter
   unsigned long int number_poles;	// number of poles
-  unsigned long int nbits;	// number of grid points 2^nbits
+  unsigned long int nbits;		// number of grid points 2^nbits
   unsigned long int kD;			// hyperV scale, set in evolve.c
 } params, *params_ptr;
 

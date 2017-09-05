@@ -38,7 +38,6 @@ default: fsw
 fsw:
 	$(CC) $(OPT) $(DEF_FSW) $(INC_FSW) -c $(C_FSW)
 	$(LINK) $(OPT) $(OBJ_FSW) $(LIB_FSW) -o $(FSW)
-	cp fsw_dw.x ./debug/fsw_dw.x
 
 hostname:
 	@echo $(HOSTNAME) $(INC_FFT)
@@ -46,7 +45,6 @@ hostname:
 clean:
 	@echo "cleaning ..."
 	rm -f *~ *.o
-	rm -f ./debug/fsw_dw.x
 
 #-------------------------------
 
