@@ -138,7 +138,7 @@ void rk6_step(fftwl_complex *inQ, fftwl_complex *inV, long double dt) {
   long double		overN = 1.L/N;
 
   //check for bug
-  /*memcpy(tmpc[0], inQ, N*sizeof(fftwl_complex));
+  memcpy(tmpc[0], inQ, N*sizeof(fftwl_complex));
   memcpy(tmpc[1], inV, N*sizeof(fftwl_complex));
   fftwl_execute(ift0);
   fftwl_execute(ift1);
@@ -152,7 +152,7 @@ void rk6_step(fftwl_complex *inQ, fftwl_complex *inV, long double dt) {
   fftwl_execute(ft1); 
   memcpy(inQ, tmpc[0], N*sizeof(fftwl_complex));
   memcpy(inV, tmpc[1], N*sizeof(fftwl_complex));
-  */
+  
   memcpy(tQ, inQ, N*sizeof(fftwl_complex)); 
   memcpy(tV, inV, N*sizeof(fftwl_complex)); 
   
@@ -186,8 +186,8 @@ void rk6_step(fftwl_complex *inQ, fftwl_complex *inV, long double dt) {
   }
   compute_rhs(tQ, tV, kq[5], kv[5]);
   for (long int j = 0; j < N; j++) {
-    tQ[j] = inQ[j] + one_fortyfourths*dt*(9.0L*kq[0][j] - 36.0L*kq[1][j] + 63.0L*kq[2][j] + 72.0L*kq[3][j] - 64.0L*kq[4][j]);
-    tV[j] = inV[j] + one_fortyfourths*dt*(9.0L*kv[0][j] - 36.0L*kv[1][j] + 63.0L*kv[2][j] + 72.0L*kv[3][j] - 64.0L*kv[4][j]);
+    tQ[j] = inQ[j] + one_fortyfourths*dt*(9.0L*kq[0][j] - 36.0L*kq[1][j] + 63.0L*kq[2][j] + 72.0L*kq[3][j] - 64.0L*kq[5][j]);
+    tV[j] = inV[j] + one_fortyfourths*dt*(9.0L*kv[0][j] - 36.0L*kv[1][j] + 63.0L*kv[2][j] + 72.0L*kv[3][j] - 64.0L*kv[5][j]);
   }
   compute_rhs(tQ, tV, kq[6], kv[6]);
   for (long int j = 0; j < N; j++) {

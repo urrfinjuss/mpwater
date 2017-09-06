@@ -9,8 +9,9 @@
 #define MIN(a,b) ((a) < (b) ? a : b)
 
 #define FMODE FFTW_MEASURE	// changed from measure
-#define MOVE_MESH 0		// 0 if singularity tracking is off , 1 otherwise
-#define PADE_TEST 0
+#define MOVE_MESH	0	// 0 if singularity tracking is off , 1 otherwise
+#define PADE_TEST	0
+#define PADE_FLAG	0
 #define PI acosl(-1.0L)
 // --------  Structures
 typedef struct input {
@@ -68,6 +69,7 @@ extern void fft_shift(fftwl_complex *in);
 
 // input.c
 extern void load_ascii();
+extern void load_pade();
 extern void set_initial_data();
 extern void set_initial_JW();
 extern void load_parameters(int argc, char *argv[]);

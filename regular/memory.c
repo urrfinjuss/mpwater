@@ -14,8 +14,8 @@ fftwl_complex 	**tmpc;
 fftwl_complex 	**data;
 
 void init_memory() {
-  printf("Requesting %lu complex arrays of length %lu\n", n_complex_arrays, state.number_modes);
-  printf("Requesting %lu real arrays of length %lu\n", n_real_arrays, state.number_modes);
+  //printf("Requesting %lu complex arrays of length %lu\n", n_complex_arrays, state.number_modes);
+  //printf("Requesting %lu real arrays of length %lu\n", n_real_arrays, state.number_modes);
   tmpc = (fftwl_complex **) fftwl_malloc(n_complex_arrays*sizeof(fftwl_complex *)); 
   tmpr = (long double **) fftwl_malloc(n_real_arrays*sizeof(long double *));   
   data = (fftwl_complex **) fftwl_malloc(2*sizeof(fftwl_complex *)); 

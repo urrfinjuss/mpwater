@@ -35,8 +35,8 @@ int main( int argc, char* argv[]) {
 
     case 3:
       printf("Reading Pade data\n");
-      printf("Placeholder\n");
-      exit(1);
+      set_mapping();
+      load_pade();
       break;
 
     case 4:
