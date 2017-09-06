@@ -4,8 +4,8 @@
 static fftwl_complex 	**kq, *tQ;
 static fftwl_complex 	**kv, *tV;
 
-static long double	cfl = 0.240L; // used to be 0.080L
-static unsigned long    kz;
+static long double	cfl = 0.200L; // used to be 0.080L
+//static unsigned long    kz;
 static const unsigned long 	pD = 12;
 static const long double 	one_third        = 1.0L/3.0L;
 static const long double 	two_thirds       = 2.0L/3.0L;
@@ -18,10 +18,12 @@ static const long double 	one_onetwentieth = 1.0L/120.0L;
 void init_timemarching() {
   kq = fftwl_malloc(7*sizeof(fftwl_complex *));
   kv = fftwl_malloc(7*sizeof(fftwl_complex *));
+  /*
   state.kD = lroundl((11.L/12.L)*state.number_modes/2.L);  // was 11/12
   kz = lroundl(7.L/6.L*state.kD);
   if (kz > state.number_modes/2) kz = state.number_modes/2;
   printf("Dissipative Range starts at k0 = %lu\n", state.kD);
+  */
 }
 
 void allocate_timemarching() {
@@ -30,11 +32,13 @@ void allocate_timemarching() {
     kq[j] = fftwl_malloc(N*sizeof(fftwl_complex));
     kv[j] = fftwl_malloc(N*sizeof(fftwl_complex));
   }
+  /*
   state.kD = lroundl((11.L/12.L)*state.number_modes/2.L);  // was 11/12
   kz = lroundl(7.L/6.L*state.kD);
   if (kz > state.number_modes/2) kz = state.number_modes/2;
   printf("New Dissipative Range starts at k0 = %lu\n", state.kD);
   printf("New Zero Range starts at k0 = %lu\n", kz);
+  */
   tQ = fftwl_malloc(N*sizeof(fftwl_complex));
   tV = fftwl_malloc(N*sizeof(fftwl_complex));
 }
@@ -133,8 +137,25 @@ void rk6_step(fftwl_complex *inQ, fftwl_complex *inV, long double dt) {
   unsigned long 	N = state.number_modes;
   long double		overN = 1.L/N;
 
+  //check for bug
+  /*memcpy(tmpc[0], inQ, N*sizeof(fftwl_complex));
+  memcpy(tmpc[1], inV, N*sizeof(fftwl_complex));
+  fftwl_execute(ift0);
+  fftwl_execute(ift1);
+  memset(tmpc[0]+N/2, 0, N/2*sizeof(fftwl_complex));
+  memset(tmpc[1]+N/2, 0, N/2*sizeof(fftwl_complex));
+  for (long int j = 0; j < N/2; j++) {
+    tmpc[0][j] = tmpc[0][j]*overN;
+    tmpc[1][j] = tmpc[1][j]*overN;
+  }
+  fftwl_execute(ft0);
+  fftwl_execute(ft1); 
+  memcpy(inQ, tmpc[0], N*sizeof(fftwl_complex));
+  memcpy(inV, tmpc[1], N*sizeof(fftwl_complex));
+  */
   memcpy(tQ, inQ, N*sizeof(fftwl_complex)); 
   memcpy(tV, inV, N*sizeof(fftwl_complex)); 
+  
 
   compute_rhs(tQ, tV, kq[0], kv[0]);
   // check rhs
@@ -179,28 +200,21 @@ void rk6_step(fftwl_complex *inQ, fftwl_complex *inV, long double dt) {
   fftwl_execute(ift1);
   memset(tmpc[0]+N/2, 0, N/2*sizeof(fftwl_complex));
   memset(tmpc[1]+N/2, 0, N/2*sizeof(fftwl_complex));
-  for (long int j = 0; j < N/2; j++) {
-    tmpc[0][j] = tmpc[0][j]*cexpl(-1.L*powl(1.L*j/state.kD, pD)); // dt
-    tmpc[1][j] = tmpc[1][j]*cexpl(-1.L*powl(1.L*j/state.kD, pD)); // dt
-    if (j >= kz) {
-      tmpc[0][j] = 0.L;
-      tmpc[1][j] = 0.L;
-    }
-  }
   fftwl_execute(ft0);
   fftwl_execute(ft1); 
+  
   memcpy(inQ, tmpc[0], N*sizeof(fftwl_complex));
   memcpy(inV, tmpc[1], N*sizeof(fftwl_complex));
 }
 
 void evolve_rk6() {
   unsigned int		QC_pass = 1;
-  unsigned long 	counter = 0, j = 0, skip = 10;
+  unsigned long 	counter = 0, j = 0, skip = 500;
   unsigned long		ref_counter = 0;
   char 			filename1[80];
   char 			filename2[80];
-  long double		M_TOL = 2.0E-15L;
-  long double		R_TOL = 4.0E-16L;
+  long double		M_TOL = 5.0E-10L;
+  long double		R_TOL = 1.0E-10L;
   long double		tshift = 0.L;
   long double   	time = 0.L, Ham = 0.L;
   long double   	dt = cfl*2.L*PI*conf.scaling/state.number_modes;
@@ -242,17 +256,26 @@ void evolve_rk6() {
     map_quality_fourier(data[0], data[1], M_TOL, &QC_pass); 
     if (QC_pass == 0) {
       ref_counter++;
-      for (unsigned long j = 0; j < state.number_modes; j++) tmpc[5][j] = data[0][j]*data[0][j];
-      sprintf(filename2, "./roots_G/roots_%04lu.txt", ref_counter);
-      optimal_pade(filename2, tmpc[5]);
-      spec_out("last.spec.txt", tmpc[0], tmpc[1]);
-      restore_potential(data[0], data[1], tmpc[2]);
+
       // Attempt to fix the conformal map
+      restore_potential(data[0], data[1], tmpc[2]);
+      // Control Map 1: try to shift zoom location and L-scaling (DO NOT REMOVE!)
+      track_singularity(data[0]);
+      alt_map.scaling = conf.scaling/sqrt(2.L);
+      // End Control Map 1
+
       remap(&alt_map, state.number_modes);
       restore_potential(data[0], data[1], tmpc[2]);
+      print_constants();
+
       map_quality_fourier(data[0], data[1], R_TOL, &QC_pass); 
+      spec_out("spec_after.txt", tmpc[0], tmpc[1]);
       if (QC_pass == 0) {
         printf("Doubling # of Modes: %lu\n", 2*state.number_modes);
+        // Control Map 2: try to shift zoom location and L-scaling and double N(DO NOT REMOVE!)
+        track_singularity(data[0]);
+        alt_map.scaling = conf.scaling*sqrtl(2.L);
+        // End Control Map 2
         remap(&alt_map, 2*state.number_modes);
         skip = lroundl(1.5L*skip);
         restore_potential(data[0], data[1], tmpc[2]);
@@ -299,23 +322,28 @@ void evolve_rk6() {
         optimal_pade(filename2, tmpc[5]);
 	*/
         // write out cut for derivative of potential
+        /*
         memcpy(tmpc[0], tmpc[5], state.number_modes*sizeof(fftwl_complex));        
         fftwl_execute(ift0);
         memset(tmpc[0] + state.number_modes/2, 0, state.number_modes*sizeof(fftwl_complex)/2);
         for (unsigned long j = 0; j < state.number_modes/2; j++) tmpc[0][j] = -1.0IL*j*tmpc[0][j]/state.number_modes; // this is derivative dq
         fftwl_execute(ft0);
         for (unsigned long j = 0; j < state.number_modes; j++) tmpc[0][j] = tmpc[0][j]*conf.dq[j]; // this is derivative du
-
         sprintf(filename2, "./roots/roots_dP%04lu.txt", counter);
         optimal_pade(filename2, tmpc[0]);
+        */
+       
 	// write out cut for R
         /*for (unsigned long j = 0; j < state.number_modes; j++) tmpc[5][j] = data[0][j]*data[0][j];
         sprintf(filename2, "./roots/roots_R%04lu.txt", counter);
         optimal_pade(filename2, tmpc[5]);*/
+
 	// write out cut for Zu
+	/*
         for (unsigned long j = 0; j < state.number_modes; j++) tmpc[5][j] = 1.L/(data[0][j]*data[0][j]);
         sprintf(filename2, "./roots/roots_DZ%04lu.txt", counter);
         optimal_pade(filename2, tmpc[5]);
+        */
 	// write out cut for V
         /*for (unsigned long j = 0; j < state.number_modes; j++) tmpc[5][j] = data[1][j];
         sprintf(filename2, "./roots/roots_V%04lu.txt", counter);

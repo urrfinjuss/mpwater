@@ -47,17 +47,16 @@ void set_initial_data() {
     data[0][j] = -1.IL*Q*data[0][j]/1.L; 	// necessary (sim 11)
     tmpc[0][j] = data[1][j]*overN; 
   }
-  complex_array_out("Z0.txt", data[0]);
+  //complex_array_out("Z0.txt", data[0]);
   convertZtoQ(data[0], data[0]);  // convert Z-tilde to Q
-  complex_array_out("Q0.txt", data[0]);
+  //complex_array_out("Q0.txt", data[0]);
   for (long int j = 0; j < state.number_modes; j++) {
     data[1][j] = C*(data[0][j]*data[0][j] - 1.L);  // required when setting Z-tilde
     tmpc[0][j] = data[1][j]*overN;
   }
-  complex_array_out("V0.txt", data[1]);
+  //complex_array_out("V0.txt", data[1]);
   fftwl_complex z0;
   fftwl_execute(ift0);
-  printf("Average V = %.12LE\n", cabsl(tmpc[0][0]));
   if (PADE_TEST) {
     for (long int j = 0; j < state.number_modes; j++) {
       data[0][j] = 1.L/(data[0][j]*data[0][j]);
@@ -71,19 +70,23 @@ void set_initial_data() {
 
   compute_zero_mode_complex(tmpc[0], 0.L, &z0);
   tmpc[0][0] = z0;
+  /*
   printf("Average V = %.12LE\n", cabsl(tmpc[0][0]));
+  */
   for (long int j = 0; j < state.number_modes; j++) tmpc[1][j] = data[0][j]*overN;
   fftwl_execute(ift1);
+  /*
   for (long int j = 0; j < state.number_modes; j++) {
     if (cabsl(tmpc[0][j]) < 1.0E-14L) tmpc[0][j] = 0.L;
     if (cabsl(tmpc[1][j]) < 1.0E-14L) tmpc[1][j] = 0.L;
   }
+  */
   fftwl_execute(ft0);
   fftwl_execute(ft1);
   memcpy(data[1], tmpc[0], state.number_modes*sizeof(fftwl_complex));
   memcpy(data[0], tmpc[1], state.number_modes*sizeof(fftwl_complex));
-  complex_array_out("Q1.txt", data[0]);
-  complex_array_out("V1.txt", data[1]);
+  //complex_array_out("Q1.txt", data[0]);
+  //complex_array_out("V1.txt", data[1]);
 }
 
 void set_initial_JW() {

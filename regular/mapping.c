@@ -32,7 +32,7 @@ void remap(map_ptr new_map, unsigned long int N) {
   long double beta = tanl(0.5L*(new_map->image_offset - conf.image_offset));
   long double overN0 = 1.L/state.number_modes;
   long double overN = 1.L/N;
-  long double R_TOL = 4.0E-16L;
+  long double R_TOL = 1.0E-10L;
   unsigned long int N0 = state.number_modes;
   unsigned int QC_pass = 0;
 
@@ -50,12 +50,14 @@ void remap(map_ptr new_map, unsigned long int N) {
   saveV = fftwl_malloc(N0*sizeof(fftwl_complex));
   memcpy(saveQ, tmpc[0], N0*sizeof(fftwl_complex));
   memcpy(saveV, tmpc[1], N0*sizeof(fftwl_complex));
+  // verify refinement
   /*for (long int j = 0; j < state.number_modes/2; j++) {
     tmpc[0][j] = tmpc[0][j]*overN0;
     tmpc[1][j] = tmpc[1][j]*overN0;
   }
   complex_array_out("preref.Q.ft.txt", tmpc[0]);
-  complex_array_out("preref.V.ft.txt", tmpc[1]);*/
+  complex_array_out("preref.V.ft.txt", tmpc[1]);
+  */
   deallocate_memory();
   state.number_modes = N;
   allocate_memory(); 
@@ -91,6 +93,9 @@ void remap(map_ptr new_map, unsigned long int N) {
     data[0][j] = data[0][j]*overN0;
     data[1][j] = data[1][j]*overN0;
   }
+  // verify refinement
+  //complex_array_out("new_d2.txt", data[0]); // this is wrong
+  //complex_array_out("new_d1.txt", data[1]);
   conf.scaling = new_map->scaling;
   conf.image_offset = new_map->image_offset;
   set_mapping();
@@ -108,6 +113,7 @@ void remap(map_ptr new_map, unsigned long int N) {
   memset(tmpc[0]+state.number_modes/2, 0, state.number_modes/2*sizeof(fftwl_complex));
   memset(tmpc[1]+state.number_modes/2, 0, state.number_modes/2*sizeof(fftwl_complex));
   map_quality(tmpc[0], tmpc[1], R_TOL, &QC_pass);//*sqrtl(state.number_modes/4096.L)
+  // verify refinement
   //complex_array_out("postref.Q.ft.txt", tmpc[0]);
   //complex_array_out("postref.V.ft.txt", tmpc[1]);
   if (QC_pass) {
@@ -140,8 +146,8 @@ void map_quality(fftwl_complex *in1, fftwl_complex *in2, long double tol, unsign
   long double qc_ratio	= 1.0L;
   //long double nqc_ratio	= 1.0L;
   unsigned long N = state.number_modes;
-  unsigned long ks = lroundl(5.L/12.L*(N/2)); //lroundl(2.L*state.kD/3.L);
-  unsigned long kf = lroundl(3.L/4.L*(N/2)); //	state.kD;
+  unsigned long ks = lroundl(7.L/12.L*(N/2)); //lroundl(2.L*state.kD/3.L);
+  unsigned long kf = lroundl(9.L/12.L*(N/2)); //	state.kD;
   left_sum1	= 0.0L;
   left_sum2	= 0.0L;
   full_sum1	= 0.0L;
@@ -153,8 +159,8 @@ void map_quality(fftwl_complex *in1, fftwl_complex *in2, long double tol, unsign
   
 
   for (long int j = state.number_modes/2-1; j > -1; j--) {
-    full_sum1 += cabsl(in1[j]);
-    full_sum2 += cabsl(in2[j]);
+    full_sum1 += creall(in1[j])*creall(in1[j]) + cimagl(in1[j])*cimagl(in1[j]);
+    full_sum2 += creall(in2[j])*creall(in2[j]) + cimagl(in2[j])*cimagl(in2[j]);
     if (j == state.number_modes*7/16) {
       partial_sum1 = full_sum1;
       partial_sum2 = full_sum2;
@@ -170,8 +176,8 @@ void map_quality(fftwl_complex *in1, fftwl_complex *in2, long double tol, unsign
     }
 
   }
-  qc_ratio = (partial_sum1-left_sum1)/sqrtl(1.L + powl(full_sum1, 2));
-  qc_ratio = fmaxl(qc_ratio, (partial_sum2-left_sum2)/sqrtl(1.L+powl(full_sum2, 2)));
+  qc_ratio = sqrtl((partial_sum1-left_sum1)/(1.L + full_sum1));
+  qc_ratio = fmaxl(qc_ratio, sqrtl((partial_sum2-left_sum2)/sqrtl(1.L+full_sum2)) );
   //inqc_ratio = narrow_sum1/sqrtl(1.L + powl(full_sum1, 2));
   //nqc_ratio = fmaxl(nqc_ratio, narrow_sum2/sqrtl(1.L+powl(full_sum2, 2)));
   if (qc_ratio < tol) {
@@ -211,8 +217,13 @@ void track_singularity(fftwl_complex *inQ) {
 	maxabsd2Q = tmpr[0][j];
         q_max = PI*(2.L*j*overN - 1.L);
     }
-  }  
-  alt_map.origin_offset = q_max;
+  } 
+  if (MOVE_MESH) { 
+    alt_map.origin_offset = q_max;
+  } else {
+    alt_map.origin_offset = conf.origin_offset;
+    q_max = conf.origin_offset;
+  }
   alt_map.image_offset = conf.image_offset + 2.0L*atan2l(conf.scaling*sinl(0.5L*(q_max-conf.origin_offset)), cosl(0.5L*(q_max-conf.origin_offset)));
  // printf("max_Abs_d2Q = %.19LE\tq_max = %.19LE\tu_max = %.19LE\n", maxabsd2Q, q_max, alt_map.image_offset);
 }
