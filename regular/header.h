@@ -9,7 +9,7 @@
 #define MIN(a,b) ((a) < (b) ? a : b)
 
 #define FMODE FFTW_MEASURE	// changed from measure
-#define MOVE_MESH	0	// 0 if singularity tracking is off , 1 otherwise
+#define MOVE_MESH	1	// 0 if singularity tracking is off , 1 otherwise
 #define PADE_TEST	0
 #define PADE_FLAG	0
 #define PI acosl(-1.0L)

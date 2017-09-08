@@ -32,7 +32,7 @@ void remap(map_ptr new_map, unsigned long int N) {
   long double beta = tanl(0.5L*(new_map->image_offset - conf.image_offset));
   long double overN0 = 1.L/state.number_modes;
   long double overN = 1.L/N;
-  long double R_TOL = 1.0E-10L;
+  long double R_TOL = 1.0E-09L;
   unsigned long int N0 = state.number_modes;
   unsigned int QC_pass = 0;
 
@@ -205,15 +205,18 @@ void track_singularity(fftwl_complex *inQ) {
   long double   q_max   = 0.L;
 
   memcpy(tmpc[0], inQ, N*sizeof(fftwl_complex));
+  //  conputing Q_qq below
+  /*  
   fftwl_execute(ift0);
   for (long int j = 0; j < N/2; j++) {
     tmpc[0][j] = -1.L*j*j*tmpc[0][j]*overN;
   }
   memset(tmpc[0]+N/2, 0, N/2*sizeof(fftwl_complex));
   fftwl_execute(ft0);
+  */
   for (long int j = 0; j < N; j++) {
-    tmpr[0][j] = cabsl(tmpc[0][j]);
-    if (maxabsd2Q < tmpr[0][j]) {
+    tmpr[0][j] = creall(tmpc[0][j]);
+    if (maxabsd2Q > tmpr[0][j]) {
 	maxabsd2Q = tmpr[0][j];
         q_max = PI*(2.L*j*overN - 1.L);
     }
@@ -225,7 +228,8 @@ void track_singularity(fftwl_complex *inQ) {
     q_max = conf.origin_offset;
   }
   alt_map.image_offset = conf.image_offset + 2.0L*atan2l(conf.scaling*sinl(0.5L*(q_max-conf.origin_offset)), cosl(0.5L*(q_max-conf.origin_offset)));
- // printf("max_Abs_d2Q = %.19LE\tq_max = %.19LE\tu_max = %.19LE\n", maxabsd2Q, q_max, alt_map.image_offset);
+  //printf("max_Abs_d2Q = %.19LE\tq_max = %.19LE\tu_max = %.19LE\n", maxabsd2Q, q_max, alt_map.image_offset);
+  //exit(0);
 }
 
 

@@ -213,8 +213,8 @@ void evolve_rk6() {
   unsigned long		ref_counter = 0;
   char 			filename1[80];
   char 			filename2[80];
-  long double		M_TOL = 5.0E-10L;
-  long double		R_TOL = 1.0E-10L;
+  long double		M_TOL = 5.0E-09L;
+  long double		R_TOL = 1.0E-09L;
   long double		tshift = 0.L;
   long double   	time = 0.L, Ham = 0.L;
   long double   	dt = cfl*2.L*PI*conf.scaling/state.number_modes;

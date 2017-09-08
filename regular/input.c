@@ -35,7 +35,8 @@ void set_initial_data() {
   long double overN = 1.L/state.number_modes;
   long double q, u;
   long double fi = 0.0L*PI;
-  long double C = -0.02L;  
+  //long double C = -0.02L;  
+  	fftwl_complex C  = -0.03L + 0.02IL;
 	fftwl_complex a1 =  0.0000L + 0.0040IL;
 	fftwl_complex a2 =  0.0160L + 0.0200IL;
 	fftwl_complex Q  =  0.0500L*cexpl(0.21IL*PI);
@@ -82,9 +83,12 @@ void set_initial_data() {
 
   fftwl_execute(ift1);
   for (long int j = 0; j < state.number_modes; j++) {
-    if (cabsl(tmpc[0][j]) < 1.0E-25L) tmpc[0][j] = 0.L;
-    if (cabsl(tmpc[1][j]) < 1.0E-25L) tmpc[1][j] = 0.L;
+    if (cabsl(tmpc[0][j]) < 1.0E-18L) tmpc[0][j] = 0.L;
+    if (cabsl(tmpc[1][j]) < 1.0E-18L) tmpc[1][j] = 0.L;
   }
+  tmpc[0][state.number_modes/2-1] = 0.L;
+  tmpc[1][state.number_modes/2-1] = 0.L;
+  
   fftwl_execute(ft1);
   fftwl_execute(ft0);
   memcpy(data[1], tmpc[0], state.number_modes*sizeof(fftwl_complex));
