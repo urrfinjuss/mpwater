@@ -35,11 +35,30 @@ void set_initial_data() {
   long double overN = 1.L/state.number_modes;
   long double q, u;
   long double fi = 0.0L*PI;
-  //long double C = -0.02L;  
-  	fftwl_complex C  = -0.03L + 0.02IL;
-	fftwl_complex a1 =  0.0000L + 0.0040IL;
-	fftwl_complex a2 =  0.0160L + 0.0200IL;
-	fftwl_complex Q  =  0.0500L*cexpl(0.21IL*PI);
+
+  // pirate jet (original)
+  /* 
+  long double 	C  = -0.02L;  
+  fftwl_complex	a1 = 0.0000L + 0.0050IL;
+  fftwl_complex a2 = 0.0000L + 0.0075IL;
+  fftwl_complex Q  = 2.5L; 
+  */
+  
+  // pirate jet (horizontal)
+  /* */
+  fftwl_complex C  = -0.02L;  
+  fftwl_complex	a1 =  0.0000L + 0.0050IL;
+  fftwl_complex a2 =  0.0000L + 0.0075IL;
+  fftwl_complex Q  =  2.5L; 
+  /* */
+
+  // oblique jet	
+  /*
+  fftwl_complex C  = -0.03L + 0.02IL;
+  fftwl_complex a1 =  0.0000L + 0.0040IL;
+  fftwl_complex a2 =  0.0160L + 0.0200IL;
+  fftwl_complex Q  =  0.0500L*cexpl(0.21IL*PI);
+  */
 
   for (long int j = 0; j < state.number_modes; j++) {
     q = 2.L*PI*(j*overN - 0.5L) - conf.origin_offset;
