@@ -184,49 +184,82 @@ void set_initial_JW() {
 
 
 void load_ascii() {
-  FILE *fh = fopen(state.restart_name, "r");
+  char line[512], *v[4];
+  long double		T;
+  for (int j = 0; j < 4; j++) {
+    v[j] = malloc(512);
+  }
+
+  FILE *fh = fopen("Q_0000.txt", "r");
   if (fh) {
-    char line[512], *v[5];
-    long int		N;
-    long double		T;
-    for (int j = 0; j < 5; j++) v[j] = malloc(512);
     if (fgets(line, 512, fh) != NULL);
-    if (fgets(line, 512, fh) != NULL) sscanf(line, "# N = %s\tL = %s\tu = %s\tT = %s", v[0], v[1], v[2], v[3]);
+    if (fgets(line, 512, fh) != NULL) sscanf(line, "# Time = %s\tL = %s\tu* = %s\tq* = %s", v[0], v[1], v[2], v[3]);
     if (fgets(line, 512, fh) != NULL);
-
-    N = strtol(v[0], NULL, 10);
-    T = strtold(v[3], NULL);
-
+    if (strcmp(v[0], "nan") == 0) T = 0.L;
+    else T = strtold(v[3], NULL);
     conf.scaling = strtold(v[1], NULL);
     conf.image_offset = strtold(v[2], NULL);
-
-    printf("Restart:\ntime = %.19LE\nN modes = %ld\n", T, N); 
-    printf("Conformal L = %.19LE\nConformal u = %.19LE\n", conf.scaling, conf.image_offset);
-    if (N != state.number_modes) {
-      printf("Incompatible Grids\nPlaceholder\n");
-      exit(1);
+    conf.origin_offset = strtold(v[3], NULL);
+    printf("Restart:\ntime = %.19LE\n", T); 
+    printf("Conformal L  = %.19LE\n", conf.scaling);
+    printf("Conformal u* = %.19LE\n", conf.image_offset);
+    printf("Conformal q* = %.19LE\n", conf.origin_offset);
+    fclose(fh);    
+  } else {
+    printf("File: Q_0000.txt is missing\n");
+    exit(0);
+  } 
+  fh = fopen("Q_0000.txt","r");
+  if (fgets(line, 512, fh) != NULL);  // skip the header
+  if (fgets(line, 512, fh) != NULL);  // skip the header
+  if (fgets(line, 512, fh) != NULL);  // skip the header
+  int counter = 0;
+  while (fgets(line, 512, fh) != NULL) {
+    sscanf(line, "%s\t%s\t%s", v[0], v[1], v[2]); // u, Q_re, Q_im
+    data[0][counter] = strtold(v[1], NULL) + 1.0IL*strtold(v[2],NULL);
+    counter++;
+    if (counter > state.number_modes) {
+      printf("Input dataset is larger than number of modes requested.\n");
+      fclose(fh);
+      exit(0);
     }
+  }
+  if (counter != state.number_modes) {
+    printf("Input dataset is shorter than number of modes requested.\n");
+    fclose(fh);
+    exit(0);
+  }
+  fclose(fh);
+  printf("Read %d lines for Q array\n", counter);
+
+  fh = fopen("V_0000.txt", "r");
+  if (fh) {
+    if (fgets(line, 512, fh) != NULL);  // skip the header
+    if (fgets(line, 512, fh) != NULL);  // skip the header
+    if (fgets(line, 512, fh) != NULL);  // skip the header
     int counter = 0;
     while (fgets(line, 512, fh) != NULL) {
-      if (counter == state.number_modes) {
-	printf("Something is wrong with restart file\n"); 
-	exit(1);
-      }
-      sscanf(line, "%s\t%s\t%s\t%s\t%s", v[0], v[1], v[2], v[3], v[4]);
-      data[0][counter] = strtold(v[1], NULL)-strtold(v[0], NULL) + 1.0IL*strtold(v[2],NULL);
-      data[1][counter] = strtold(v[3], NULL) + 1.0IL*strtold(v[4],NULL);
+      sscanf(line, "%s\t%s\t%s", v[0], v[1], v[2]); // u, V_re, V_im
+      data[1][counter] = strtold(v[1], NULL) + 1.0IL*strtold(v[2],NULL);
       counter++;
+      if (counter > state.number_modes) {
+        printf("Input dataset is larger than number of modes requested.\n");
+        fclose(fh);
+        exit(0);
+      }
     }
-    fclose(fh);    
     if (counter != state.number_modes) {
-	printf("Something is wrong with restart file\n");
-        exit(1);
+      printf("Input dataset is shorter than number of modes requested.\n");
+      fclose(fh);
+      exit(0);
     }
-    for (int j = 0; j < 5; j++) free(v[j]);
+    fclose(fh);
   } else {
-    printf("Missing restart file\n");
-    exit(1);
+    printf("File: V_0000.txt is missing\n");
+    exit(0);
   }
+  printf("Read %d lines for V array\n", counter);
+  for (int j = 0; j < 4; j++) free(v[j]);
 }
 
 void load_pade() {

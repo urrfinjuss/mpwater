@@ -26,8 +26,9 @@ void complex_array_out(char *fname, mpfc_t *in) {
   mpfr_set_ui(overN, 1, MODE);
   mpfr_div_ui(overN, overN, 1<<state.nbits, MODE);
 
-  mpfr_fprintf(fh, "# 1. q 2. u 3.-4. Array\n");
-  mpfr_fprintf(fh, "# Time = %.14Re\tL = %.14Re\n\n", state.time, conf.scaling);
+  mpfr_fprintf(fh, "# 1. u 2. Re 3. Im\n");
+  mpfr_fprintf(fh, "# Time = %.14Re\tL = %.64Re\t", state.time, conf.scaling);
+  mpfr_fprintf(fh, "u* = %.64Re\tq* = %.64Re\n\n", conf.image_offset, conf.origin_offset);
   for (long int j = 0; j < 1<<state.nbits; j++) {
     //q = 2.0L*PI*(j*overN - 0.5L) - conf.origin_offset;
     mpfr_mul_ui(q, overN, 2*j, MODE); 
@@ -43,7 +44,7 @@ void complex_array_out(char *fname, mpfc_t *in) {
     mpfr_add(u, u, conf.image_offset, MODE);
 
     mpfr_add(q, q, conf.origin_offset, MODE);
-    mpfr_fprintf(fh, "%24.17Re\t%24.17Re\t%24.17Re\t%24.17Re\n", q, u, in[j].re, in[j].im);
+    mpfr_fprintf(fh, "%72.64Re\t%72.64Re\t%72.64Re\n", u, in[j].re, in[j].im);
   }
   fclose(fh);
   mpfr_clears(u, q, overN, (mpfr_ptr) NULL);
@@ -60,20 +61,21 @@ void spec_out(char *fname, mpfc_t *in1, mpfc_t *in2) {
   mpfr_div_ui(overN, overN, 1<<state.nbits, MODE);
 
   mpfr_fprintf(fh, "# 1. k 2. |a_k| 3. |b_k|\n");
-  mpfr_fprintf(fh, "# Time = %.14Re\tL = %.14Re\n\n", state.time, conf.scaling);
+  mpfr_fprintf(fh, "# Time = %.14Re\tL = %.64Re\t", state.time, conf.scaling);
+  mpfr_fprintf(fh, "u* = %.64Re\tq* = %.64Re\n\n", conf.image_offset, conf.origin_offset);
   for (long int j = 0; j < 1<<state.nbits; j++) {
     mpfr_hypot(buf1, in1[j].re, in1[j].im, MODE);
     mpfr_mul(buf1, buf1, overN, MODE);
     mpfr_hypot(buf2, in2[j].re, in2[j].im, MODE);
     mpfr_mul(buf2, buf2, overN, MODE);
 
-    mpfr_fprintf(fh, "%ld\t%23.17Re\t%23.17Re\n", j, buf1, buf2);
+    mpfr_fprintf(fh, "%ld\t%72.64Re\t%72.64Re\n", j, buf1, buf2);
   }
   fclose(fh);
   mpfr_clears(overN, buf1, buf2, (mpfr_ptr) NULL);
 }
 
-
+/*
 void output_data(char *fname, mpfc_t *inPhi) {
   FILE *fh = fopen(fname,"w");
   //long double u, q, overN = 1.L/state.number_modes;
@@ -87,7 +89,8 @@ void output_data(char *fname, mpfc_t *inPhi) {
 
   //convertQtoZ(data[0], tmpc[3]);
   fprintf(fh, "# 1. q 2. u 3.-4. Q 5.-6. V 7.-8. Z 9.-10. Phi\n");
-  mpfr_fprintf(fh, "# Time = %.14Re\tL = %.14Re\n\n", state.time, conf.scaling);
+  mpfr_fprintf(fh, "# Time = %.14Re\tL = %.64Re\t", state.time, conf.scaling);
+  mpfr_fprintf(fh, "u* = %.64Re\tq* = %.64Re\n\n", conf.image_offset, conf.origin_offset);
   for (long int j = 0; j < 1<<state.nbits; j++) {
     //q = 2.0L*PI*(j*overN - 0.5L) - conf.origin_offset;
     mpfr_mul_ui(q, overN, 2*j, MODE); 
@@ -103,17 +106,17 @@ void output_data(char *fname, mpfc_t *inPhi) {
     mpfr_add(u, u, conf.image_offset, MODE);
 
     mpfr_add(q, q, conf.origin_offset, MODE);
-    mpfr_fprintf(fh, "%24.17Re\t%24.17Re\t", q, u);
-    mpfr_fprintf(fh, "%24.17Re\t%24.17Re\t", data[0][j].re, data[0][j].im);
-    mpfr_fprintf(fh, "%24.17Re\t%24.17Re\t", data[1][j].re, data[1][j].im);
-    mpfr_fprintf(fh, "%24.17Re\t%24.17Re\t", tmpc[3][j].re, tmpc[3][j].im);
-    mpfr_fprintf(fh, "%24.17Re\t%24.17Re\n", inPhi[j].re,   inPhi[j].im  );
+    mpfr_fprintf(fh, "%72.64Re\t%72.64Re\t", q, u);
+    mpfr_fprintf(fh, "%72.64Re\t%72.64Re\t", data[0][j].re, data[0][j].im);
+    mpfr_fprintf(fh, "%72.64Re\t%72.64Re\t", data[1][j].re, data[1][j].im);
+    mpfr_fprintf(fh, "%72.64Re\t%72.64Re\t", tmpc[3][j].re, tmpc[3][j].im);
+    mpfr_fprintf(fh, "%72.64Re\t%72.64Re\n", inPhi[j].re,   inPhi[j].im  );
   }
   fclose(fh);
   mpfr_clears(u, q, overN, (mpfr_ptr) NULL);
   mpfr_clears(buf1, buf2, buf3, (mpfr_ptr) NULL);
 }
-
+*/
 
 
 void surface_out(char *fname, mpfc_t *in) {
@@ -128,7 +131,8 @@ void surface_out(char *fname, mpfc_t *in) {
   mpfr_div_si(overN, overN, N, MODE);
 
   mpfr_fprintf(fh, "# 1. x 2. y\n");
-  mpfr_fprintf(fh, "# Time = %.14Re\tL = %.14Re\n\n", state.time, conf.scaling);
+  mpfr_fprintf(fh, "# Time = %.14Re\tL = %.64Re\t", state.time, conf.scaling);
+  mpfr_fprintf(fh, "u* = %.64Re\tq* = %.64Re\n\n", conf.image_offset, conf.origin_offset);
   for (long int j = 0; j < N; j++) {
     //q = 2.0L*PI*(overN*j - 0.5L) - conf.origin_offset;
     mpfr_mul_ui(q, overN, 2*j, MODE); 
@@ -144,7 +148,7 @@ void surface_out(char *fname, mpfc_t *in) {
     mpfr_add(u, u, conf.image_offset, MODE);
 
     mpfr_add(u, u, in[j].re, MODE);
-    mpfr_fprintf(fh, "%23.17Re\t%23.17Re\n", u, in[j].im);
+    mpfr_fprintf(fh, "%72.64Re\t%72.64Re\n", u, in[j].im);
   }
   fclose(fh);
   mpfr_clears(u, q, overN, (mpfr_ptr) NULL);
