@@ -105,7 +105,7 @@ void set_initial_data() {
   mpfr_set_d(a2, 0.0075, MODE);				// a2
 
   //long double overN = 1.L/state.number_modes;
-  mpfr_printf("Generatin initial data:\n");
+  mpfr_printf("Generating the initial data:\n");
   for (unsigned k = 0; k < gen_ic.np; k++) { 
       mpfr_printf("re a_k = %.12Re\tim a_k = %.12Re\n", gen_ic.loc[k].re, gen_ic.loc[k].im);
       mpfr_printf("re b_k = %.12Re\tim b_k = %.12Re\n", gen_ic.res[k].re, gen_ic.res[k].im);

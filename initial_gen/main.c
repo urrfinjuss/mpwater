@@ -28,6 +28,8 @@ int main( int argc, char* argv[]) {
       exit(1);
   }
   convertQtoZ(data[0], tmpc[5]);
-  complex_array_out("z.txt", tmpc[5]);     
+  complex_array_out("Z_0000.txt", tmpc[5]);     
+  complex_array_out("Q_0000.txt", data[0]);
+  complex_array_out("V_0000.txt", data[1]);
  
 }
