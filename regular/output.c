@@ -43,7 +43,7 @@ void output_data(char *fname, fftwl_complex *inPhi) {
   FILE *fh = fopen(fname,"w");
   long double u, q, overN = 1.L/state.number_modes;
 
-  //convertQtoZ(data[0], tmpc[3]);
+  convertQtoZ(data[0], tmpc[3]);
   fprintf(fh, "# 1. q 2. u 3.-4. Q 5.-6. V 7.-8. Z 9.-10. Phi\n");
   fprintf(fh, "# Time = %.14LE\tL = %.14LE\tu* = %.14LE\tq* = %.14LE\n\n", state.time, conf.scaling, conf.image_offset, conf.origin_offset);
   for (long int j = 0; j < state.number_modes; j++) {

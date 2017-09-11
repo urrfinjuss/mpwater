@@ -18,12 +18,6 @@ static const long double 	one_onetwentieth = 1.0L/120.0L;
 void init_timemarching() {
   kq = fftwl_malloc(7*sizeof(fftwl_complex *));
   kv = fftwl_malloc(7*sizeof(fftwl_complex *));
-  /*
-  state.kD = lroundl((11.L/12.L)*state.number_modes/2.L);  // was 11/12
-  kz = lroundl(7.L/6.L*state.kD);
-  if (kz > state.number_modes/2) kz = state.number_modes/2;
-  printf("Dissipative Range starts at k0 = %lu\n", state.kD);
-  */
 }
 
 void allocate_timemarching() {
@@ -32,13 +26,6 @@ void allocate_timemarching() {
     kq[j] = fftwl_malloc(N*sizeof(fftwl_complex));
     kv[j] = fftwl_malloc(N*sizeof(fftwl_complex));
   }
-  /*
-  state.kD = lroundl((11.L/12.L)*state.number_modes/2.L);  // was 11/12
-  kz = lroundl(7.L/6.L*state.kD);
-  if (kz > state.number_modes/2) kz = state.number_modes/2;
-  printf("New Dissipative Range starts at k0 = %lu\n", state.kD);
-  printf("New Zero Range starts at k0 = %lu\n", kz);
-  */
   tQ = fftwl_malloc(N*sizeof(fftwl_complex));
   tV = fftwl_malloc(N*sizeof(fftwl_complex));
 }
@@ -60,7 +47,6 @@ void compute_rhs(fftwl_complex *inQ, fftwl_complex *inV, fftwl_complex *outQ, ff
   fftwl_complex 	w2 = cexpl(-1.IL*conf.origin_offset - 2.L*atanhl(conf.scaling));
   fftwl_complex		w1 = conjl(w2);
   fftwl_complex 	b1U = 0.L, b2U = 0.L;
-  //fftwl_complex 	b1B = 0.L, b2B = 0.L;
 
   if (conf.scaling == 1.0L) {
 	w2 = 0.L;
@@ -83,32 +69,18 @@ void compute_rhs(fftwl_complex *inQ, fftwl_complex *inV, fftwl_complex *outQ, ff
     tmpc[3][j]= inV[j]*conjl(inV[j])+4.L*sigma*conf.dq[j]*cimagl(tmpc[0][j]*conjl(inQ[j]));
     tmpc[3][j]= tmpc[3][j]*overN;
   }
-  //project(tmpc[3], tmpc[4]); 
-  //complex_array_out("B.ph.old.txt", tmpc[4]);
-  //for (long int j = 0; j < N; j++) {
-  //  tmpc[3][j]= tmpc[3][j]*overN;
-  //}
-  //complex_array_out("tmpc2.txt", tmpc[2]);   // tmpc[2] checks out
-  //complex_array_out("tmpc3.txt", tmpc[3]);   // tmpc[3] checks out
   fftwl_execute(ift2);
   fftwl_execute(ift3);
   tmpc[4][0] = 0.L;
-  //b2B = tmpc[3][N/2-1];	b1B = tmpc[3][N/2+1];
   b2U = tmpc[2][N/2-1];	b1U = tmpc[2][N/2+1];
   for (long int j = 1; j < N/2 - 1; j++) {
-    //b1B = b1B*w1 + tmpc[3][N/2+1+j];
-    //b2B = b2B*w2 + tmpc[3][N/2-1-j];
     b1U = b1U*w1 + tmpc[2][N/2+1+j];
     b2U = b2U*w2 + tmpc[2][N/2-1-j];
   }
-  //printf("b1U = %23.18LE\t%23.18LE\n", creall(b1U), cimagl(b1U));
-  //printf("b2U = %23.18LE\t%23.18LE\n", creall(b2U), cimagl(b2U));
-  //exit(1);
   memset(tmpc[2]+N/2, 0, N/2*sizeof(fftwl_complex));
   memset(tmpc[3]+N/2, 0, N/2*sizeof(fftwl_complex));
   memset(tmpc[4]+N/2, 0, N/2*sizeof(fftwl_complex));
   tmpc[2][0] = 0.5L*tmpc[2][0];
-  //tmpc[3][0] = 0.5L*tmpc[3][0];  
   for (long int j = 0; j < N/2; j++) {
     tmpc[3][j] = -1.IL*j*tmpc[3][j];
     tmpc[4][j] = -1.IL*j*tmpc[2][j];
@@ -118,7 +90,6 @@ void compute_rhs(fftwl_complex *inQ, fftwl_complex *inV, fftwl_complex *outQ, ff
   fftwl_execute(ft4);
   for (long int j = 0; j < N; j++) {
     tmpc[2][j] += 0.5L*(b1U*w1 - b2U*w2);
-    //tmpc[3][j] += 0.5L*(b1B*w1 - b2B*w2); 	// thats irrelevant for B'
   }
   // Summary:
   // tmpc[0] <--  stores Q'
@@ -137,7 +108,6 @@ void rk6_step(fftwl_complex *inQ, fftwl_complex *inV, long double dt) {
   unsigned long 	N = state.number_modes;
   long double		overN = 1.L/N;
 
-  //check for bug
   memcpy(tmpc[0], inQ, N*sizeof(fftwl_complex));
   memcpy(tmpc[1], inV, N*sizeof(fftwl_complex));
   fftwl_execute(ift0);
@@ -158,8 +128,6 @@ void rk6_step(fftwl_complex *inQ, fftwl_complex *inV, long double dt) {
   
 
   compute_rhs(tQ, tV, kq[0], kv[0]);
-  // check rhs
-  // end check rhs
   for (long int j = 0; j < N; j++) {
     tQ[j] = inQ[j] + one_third*dt*kq[0][j];
     tV[j] = inV[j] + one_third*dt*kv[0][j];
@@ -240,7 +208,6 @@ void evolve_rk6() {
   output_data(filename1, tmpc[5]);
   printf("T = %23.16LE\tH = %23.16LE\n", state.time, Ham);
 
-  //*sqrtl(state.number_modes/4096.L)
   if (QC_pass == 0) {
     printf("Bad quality map at start.\tStop!\n");
     exit(1);
