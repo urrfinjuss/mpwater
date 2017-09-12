@@ -1,0 +1,364 @@
+cleaning ...
+rm -f *~ *.o
+gcc -march=native -std=gnu99 -O2 -ffast-math -mfpmath=sse+387 -Wall -Wpointer-arith -Wcast-align -fno-schedule-insns -fschedule-insns2 -fstrict-aliasing -funroll-loops -fprefetch-loop-arrays   -I/home/0/sdyachen/usr/include -c main.c output.c memory.c set.c poly.c gramschmidt.c rational.c newtsearch.c aberth.c optimal.c postproc.c
+main.c: In function ‘main’:
+main.c:43: warning: implicit declaration of function ‘mpfc_si_div’
+memory.c: In function ‘init_memory’:
+memory.c:23: warning: implicit declaration of function ‘init_mpfc_arithmetic’
+set.c: In function ‘set_initial’:
+set.c:86: warning: implicit declaration of function ‘mpfc_mul’
+set.c:87: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c: In function ‘evaluate_poly_array’:
+poly.c:59: warning: implicit declaration of function ‘mpfc_mul’
+poly.c:60: warning: implicit declaration of function ‘mpfc_fma’
+poly.c:61: warning: implicit declaration of function ‘mpfc_fms’
+poly.c:94: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:95: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:96: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:97: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:109: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:110: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:111: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:112: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:119: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:120: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c: In function ‘init_poly_steps’:
+poly.c:134: warning: implicit declaration of function ‘mpfc_set_si’
+poly.c:138: warning: implicit declaration of function ‘mpfc_neg’
+poly.c: In function ‘evaluate_poly’:
+poly.c:234: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:235: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:236: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:237: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:244: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:245: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:246: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:247: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:254: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:255: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:256: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:257: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:264: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:265: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:266: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c: In function ‘poly_val_array’:
+poly.c:394: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:395: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:396: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:397: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:405: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:406: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:407: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:408: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:416: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:417: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:418: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:419: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:426: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:427: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+poly.c:428: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+gramschmidt.c: In function ‘fmul_sub’:
+gramschmidt.c:28: warning: implicit declaration of function ‘mpfc_fms’
+gramschmidt.c: In function ‘sigma_mul’:
+gramschmidt.c:45: warning: implicit declaration of function ‘mpfc_mul’
+rational.c: In function ‘errorl2’:
+rational.c:57: warning: implicit declaration of function ‘mpfc_div’
+newtsearch.c: In function ‘newton_search’:
+newtsearch.c:25: warning: implicit declaration of function ‘mpfc_set_si’
+newtsearch.c:42: warning: implicit declaration of function ‘mpfc_mul’
+newtsearch.c:55: warning: implicit declaration of function ‘mpfc_div’
+newtsearch.c:56: warning: implicit declaration of function ‘mpfc_sub’
+newtsearch.c:70: warning: implicit declaration of function ‘mpfc_add’
+newtsearch.c:72: warning: implicit declaration of function ‘mpfc_fms’
+newtsearch.c:92: warning: passing argument 2 of ‘mpfc_set’ from incompatible pointer type
+/home/0/sdyachen/usr/include/mpfft_header.h:26: note: expected ‘struct __mpfr_struct *’ but argument is of type ‘struct mpfc_t *’
+aberth.c: In function ‘init_aberth’:
+aberth.c:37: warning: implicit declaration of function ‘mpfc_set_si’
+aberth.c: In function ‘aberth_iter’:
+aberth.c:103: warning: implicit declaration of function ‘mpfc_div’
+aberth.c:108: warning: implicit declaration of function ‘mpfc_sub’
+aberth.c:109: warning: implicit declaration of function ‘mpfc_si_div’
+aberth.c:110: warning: implicit declaration of function ‘mpfc_add’
+aberth.c:115: warning: implicit declaration of function ‘mpfc_mul’
+aberth.c:119: warning: implicit declaration of function ‘mpfc_neg’
+postproc.c: In function ‘verify_pade’:
+postproc.c:84: warning: implicit declaration of function ‘mpfc_div’
+postproc.c:91: warning: implicit declaration of function ‘mpfc_add’
+gcc -march=native -std=gnu99 -O2 -ffast-math -mfpmath=sse+387 -Wall -Wpointer-arith -Wcast-align -fno-schedule-insns -fschedule-insns2 -fstrict-aliasing -funroll-loops -fprefetch-loop-arrays main.o output.o memory.o set.o poly.o gramschmidt.o rational.o newtsearch.o aberth.o optimal.o postproc.o   -L/home/0/sdyachen/usr/lib  -lmpfft -lmpfr  -o pade.x
+main.o: In function `main':
+main.c:(.text+0x186): undefined reference to `mpfc_si_div'
+memory.o: In function `init_memory':
+memory.c:(.text+0x5b1): undefined reference to `init_mpfc_arithmetic'
+set.o: In function `set_initial':
+set.c:(.text+0x292): undefined reference to `mpfc_mul'
+set.c:(.text+0x2aa): undefined reference to `mpfc_set'
+poly.o: In function `init_poly_steps':
+poly.c:(.text+0x1e7): undefined reference to `mpfc_set_si'
+poly.c:(.text+0x1f7): undefined reference to `mpfc_set_si'
+poly.c:(.text+0x207): undefined reference to `mpfc_set_si'
+poly.c:(.text+0x221): undefined reference to `mpfc_neg'
+poly.c:(.text+0x234): undefined reference to `mpfc_set_si'
+poly.o: In function `evaluate_poly':
+poly.c:(.text+0x3b0): undefined reference to `mpfc_mul'
+poly.c:(.text+0x3d8): undefined reference to `mpfc_fma'
+poly.c:(.text+0x408): undefined reference to `mpfc_fms'
+poly.c:(.text+0x42b): undefined reference to `mpfc_mul'
+poly.c:(.text+0x45f): undefined reference to `mpfc_fma'
+poly.c:(.text+0x487): undefined reference to `mpfc_fms'
+poly.c:(.text+0x4b3): undefined reference to `mpfc_fms'
+poly.c:(.text+0x4e7): undefined reference to `mpfc_fma'
+poly.c:(.text+0x513): undefined reference to `mpfc_fms'
+poly.c:(.text+0x53e): undefined reference to `mpfc_mul'
+poly.c:(.text+0x56d): undefined reference to `mpfc_fma'
+poly.c:(.text+0x593): undefined reference to `mpfc_fma'
+poly.c:(.text+0x5bf): undefined reference to `mpfc_fms'
+poly.c:(.text+0x5e5): undefined reference to `mpfc_mul'
+poly.c:(.text+0x60c): undefined reference to `mpfc_fma'
+poly.c:(.text+0x632): undefined reference to `mpfc_fma'
+poly.c:(.text+0x64f): undefined reference to `mpfc_fms'
+poly.c:(.text+0x67b): undefined reference to `mpfc_fms'
+poly.c:(.text+0x6a2): undefined reference to `mpfc_fma'
+poly.c:(.text+0x6c8): undefined reference to `mpfc_fma'
+poly.c:(.text+0x6e2): undefined reference to `mpfc_fms'
+poly.c:(.text+0x78d): undefined reference to `mpfc_mul'
+poly.c:(.text+0x7b0): undefined reference to `mpfc_fma'
+poly.c:(.text+0x7d1): undefined reference to `mpfc_fma'
+poly.c:(.text+0x7f3): undefined reference to `mpfc_fma'
+poly.c:(.text+0x80e): undefined reference to `mpfc_fms'
+poly.c:(.text+0x830): undefined reference to `mpfc_mul'
+poly.c:(.text+0x853): undefined reference to `mpfc_fma'
+poly.c:(.text+0x874): undefined reference to `mpfc_fma'
+poly.c:(.text+0x896): undefined reference to `mpfc_fma'
+poly.c:(.text+0x8b1): undefined reference to `mpfc_fms'
+poly.c:(.text+0x8d7): undefined reference to `mpfc_fms'
+poly.c:(.text+0x8fa): undefined reference to `mpfc_fma'
+poly.c:(.text+0x91c): undefined reference to `mpfc_fma'
+poly.c:(.text+0x93e): undefined reference to `mpfc_fma'
+poly.c:(.text+0x95a): undefined reference to `mpfc_fms'
+poly.c:(.text+0x96e): undefined reference to `mpfc_set'
+poly.c:(.text+0x97f): undefined reference to `mpfc_set'
+poly.c:(.text+0x98e): undefined reference to `mpfc_set'
+poly.c:(.text+0x9a2): undefined reference to `mpfc_set'
+poly.c:(.text+0x9ba): undefined reference to `mpfc_set'
+poly.o:poly.c:(.text+0x9cb): more undefined references to `mpfc_set' follow
+poly.o: In function `poly_val_array':
+poly.c:(.text+0xe6d): undefined reference to `mpfc_set_si'
+poly.c:(.text+0xe94): undefined reference to `mpfc_set_si'
+poly.c:(.text+0xeb6): undefined reference to `mpfc_set_si'
+poly.c:(.text+0xee4): undefined reference to `mpfc_neg'
+poly.c:(.text+0xf09): undefined reference to `mpfc_set_si'
+poly.c:(.text+0xf2d): undefined reference to `mpfc_set_si'
+poly.c:(.text+0xf5a): undefined reference to `mpfc_mul'
+poly.c:(.text+0xf7e): undefined reference to `mpfc_fma'
+poly.c:(.text+0xfa5): undefined reference to `mpfc_fms'
+poly.c:(.text+0xfc5): undefined reference to `mpfc_mul'
+poly.c:(.text+0xfe9): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1010): undefined reference to `mpfc_fms'
+poly.c:(.text+0x1036): undefined reference to `mpfc_fms'
+poly.c:(.text+0x1059): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1080): undefined reference to `mpfc_fms'
+poly.c:(.text+0x10a3): undefined reference to `mpfc_mul'
+poly.c:(.text+0x10ca): undefined reference to `mpfc_fma'
+poly.c:(.text+0x10ee): undefined reference to `mpfc_fma'
+poly.c:(.text+0x111a): undefined reference to `mpfc_fms'
+poly.c:(.text+0x113d): undefined reference to `mpfc_mul'
+poly.c:(.text+0x1164): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1188): undefined reference to `mpfc_fma'
+poly.c:(.text+0x11b6): undefined reference to `mpfc_fms'
+poly.c:(.text+0x11df): undefined reference to `mpfc_fms'
+poly.c:(.text+0x1206): undefined reference to `mpfc_fma'
+poly.c:(.text+0x122a): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1246): undefined reference to `mpfc_fms'
+poly.c:(.text+0x12d2): undefined reference to `mpfc_mul'
+poly.c:(.text+0x12f5): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1316): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1338): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1352): undefined reference to `mpfc_fms'
+poly.c:(.text+0x1371): undefined reference to `mpfc_mul'
+poly.c:(.text+0x1394): undefined reference to `mpfc_fma'
+poly.c:(.text+0x13b5): undefined reference to `mpfc_fma'
+poly.c:(.text+0x13d7): undefined reference to `mpfc_fma'
+poly.c:(.text+0x13f1): undefined reference to `mpfc_fms'
+poly.c:(.text+0x1414): undefined reference to `mpfc_fms'
+poly.c:(.text+0x1437): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1458): undefined reference to `mpfc_fma'
+poly.c:(.text+0x147a): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1494): undefined reference to `mpfc_fms'
+poly.c:(.text+0x14a5): undefined reference to `mpfc_set'
+poly.c:(.text+0x14b4): undefined reference to `mpfc_set'
+poly.c:(.text+0x14c3): undefined reference to `mpfc_set'
+poly.c:(.text+0x14d4): undefined reference to `mpfc_set'
+poly.c:(.text+0x14e9): undefined reference to `mpfc_set'
+poly.o:poly.c:(.text+0x14f8): more undefined references to `mpfc_set' follow
+poly.o: In function `evaluate_poly_array':
+poly.c:(.text+0x1a25): undefined reference to `mpfc_mul'
+poly.c:(.text+0x1a51): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1a75): undefined reference to `mpfc_fms'
+poly.c:(.text+0x1a9d): undefined reference to `mpfc_mul'
+poly.c:(.text+0x1aca): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1aee): undefined reference to `mpfc_fms'
+poly.c:(.text+0x1b19): undefined reference to `mpfc_mul'
+poly.c:(.text+0x1b49): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1b78): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1b9d): undefined reference to `mpfc_fms'
+poly.c:(.text+0x1bc9): undefined reference to `mpfc_mul'
+poly.c:(.text+0x1bf9): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1c28): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1c4d): undefined reference to `mpfc_fms'
+poly.c:(.text+0x1c92): undefined reference to `mpfc_mul'
+poly.c:(.text+0x1cbe): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1cea): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1d15): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1d3d): undefined reference to `mpfc_fms'
+poly.c:(.text+0x1d58): undefined reference to `mpfc_set'
+poly.c:(.text+0x1d74): undefined reference to `mpfc_set'
+poly.c:(.text+0x1d90): undefined reference to `mpfc_set'
+poly.c:(.text+0x1daf): undefined reference to `mpfc_set'
+poly.c:(.text+0x1dd6): undefined reference to `mpfc_mul'
+poly.c:(.text+0x1e02): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1e2e): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1e59): undefined reference to `mpfc_fma'
+poly.c:(.text+0x1e81): undefined reference to `mpfc_fms'
+poly.c:(.text+0x1ea0): undefined reference to `mpfc_set'
+poly.c:(.text+0x1ebc): undefined reference to `mpfc_set'
+poly.c:(.text+0x1ed8): undefined reference to `mpfc_set'
+poly.c:(.text+0x1ef7): undefined reference to `mpfc_set'
+poly.c:(.text+0x1f4e): undefined reference to `mpfc_set'
+poly.o:poly.c:(.text+0x1f6d): more undefined references to `mpfc_set' follow
+poly.o: In function `init_poly_steps':
+poly.c:(.text+0x252): undefined reference to `mpfc_set_si'
+gramschmidt.o: In function `sigma_mul':
+gramschmidt.c:(.text+0xac): undefined reference to `mpfc_mul'
+gramschmidt.o: In function `fmul_sub':
+gramschmidt.c:(.text+0x14a): undefined reference to `mpfc_fms'
+rational.o: In function `errorl2':
+rational.c:(.text+0xe7): undefined reference to `mpfc_div'
+newtsearch.o: In function `newton_search':
+newtsearch.c:(.text+0x18f): undefined reference to `mpfc_set_si'
+newtsearch.c:(.text+0x1a4): undefined reference to `mpfc_set_si'
+newtsearch.c:(.text+0x1bc): undefined reference to `mpfc_set_si'
+newtsearch.c:(.text+0x1d4): undefined reference to `mpfc_set_si'
+newtsearch.c:(.text+0x247): undefined reference to `mpfc_set_si'
+newtsearch.o:newtsearch.c:(.text+0x25f): more undefined references to `mpfc_set_si' follow
+newtsearch.o: In function `newton_search':
+newtsearch.c:(.text+0x289): undefined reference to `mpfc_mul'
+newtsearch.c:(.text+0x2ef): undefined reference to `mpfc_set_si'
+newtsearch.c:(.text+0x30b): undefined reference to `mpfc_div'
+newtsearch.c:(.text+0x31d): undefined reference to `mpfc_sub'
+newtsearch.c:(.text+0x3bf): undefined reference to `mpfc_set_si'
+newtsearch.c:(.text+0x3e0): undefined reference to `mpfc_sub'
+newtsearch.c:(.text+0x3f7): undefined reference to `mpfc_div'
+newtsearch.c:(.text+0x409): undefined reference to `mpfc_add'
+newtsearch.c:(.text+0x43d): undefined reference to `mpfc_sub'
+newtsearch.c:(.text+0x454): undefined reference to `mpfc_div'
+newtsearch.c:(.text+0x466): undefined reference to `mpfc_add'
+newtsearch.c:(.text+0x492): undefined reference to `mpfc_sub'
+newtsearch.c:(.text+0x4a9): undefined reference to `mpfc_div'
+newtsearch.c:(.text+0x4bb): undefined reference to `mpfc_add'
+newtsearch.c:(.text+0x4d2): undefined reference to `mpfc_sub'
+newtsearch.c:(.text+0x4e9): undefined reference to `mpfc_div'
+newtsearch.c:(.text+0x4fb): undefined reference to `mpfc_add'
+newtsearch.c:(.text+0x524): undefined reference to `mpfc_fms'
+newtsearch.c:(.text+0x53b): undefined reference to `mpfc_div'
+newtsearch.c:(.text+0x54d): undefined reference to `mpfc_add'
+newtsearch.c:(.text+0x564): undefined reference to `mpfc_mul'
+newtsearch.c:(.text+0x600): undefined reference to `mpfc_div'
+newtsearch.c:(.text+0x612): undefined reference to `mpfc_set'
+newtsearch.c:(.text+0x7f7): undefined reference to `mpfc_set_si'
+newtsearch.c:(.text+0x807): undefined reference to `mpfc_set_si'
+newtsearch.c:(.text+0x81a): undefined reference to `mpfc_set_si'
+newtsearch.c:(.text+0x82d): undefined reference to `mpfc_set_si'
+aberth.o: In function `init_aberth':
+aberth.c:(.text+0x351): undefined reference to `mpfc_set_si'
+aberth.o: In function `aberth_iter':
+aberth.c:(.text+0x77e): undefined reference to `mpfc_div'
+aberth.c:(.text+0x795): undefined reference to `mpfc_set_si'
+aberth.c:(.text+0x7be): undefined reference to `mpfc_sub'
+aberth.c:(.text+0x7d2): undefined reference to `mpfc_si_div'
+aberth.c:(.text+0x7eb): undefined reference to `mpfc_add'
+aberth.c:(.text+0x83b): undefined reference to `mpfc_sub'
+aberth.c:(.text+0x84f): undefined reference to `mpfc_si_div'
+aberth.c:(.text+0x868): undefined reference to `mpfc_add'
+aberth.c:(.text+0x88f): undefined reference to `mpfc_sub'
+aberth.c:(.text+0x8a3): undefined reference to `mpfc_si_div'
+aberth.c:(.text+0x8bc): undefined reference to `mpfc_add'
+aberth.c:(.text+0x8e3): undefined reference to `mpfc_sub'
+aberth.c:(.text+0x8f7): undefined reference to `mpfc_si_div'
+aberth.c:(.text+0x910): undefined reference to `mpfc_add'
+aberth.c:(.text+0x947): undefined reference to `mpfc_sub'
+aberth.c:(.text+0x95b): undefined reference to `mpfc_si_div'
+aberth.c:(.text+0x974): undefined reference to `mpfc_add'
+aberth.c:(.text+0x99b): undefined reference to `mpfc_sub'
+aberth.c:(.text+0x9af): undefined reference to `mpfc_si_div'
+aberth.c:(.text+0x9c8): undefined reference to `mpfc_add'
+aberth.c:(.text+0x9f0): undefined reference to `mpfc_sub'
+aberth.c:(.text+0xa04): undefined reference to `mpfc_si_div'
+aberth.c:(.text+0xa1d): undefined reference to `mpfc_add'
+aberth.c:(.text+0xa48): undefined reference to `mpfc_sub'
+aberth.c:(.text+0xa5c): undefined reference to `mpfc_si_div'
+aberth.c:(.text+0xa75): undefined reference to `mpfc_add'
+aberth.c:(.text+0xaa8): undefined reference to `mpfc_mul'
+aberth.c:(.text+0xadd): undefined reference to `mpfc_div'
+aberth.c:(.text+0xaf3): undefined reference to `mpfc_neg'
+aberth.c:(.text+0xb17): undefined reference to `mpfc_add'
+aberth.c:(.text+0xbb6): undefined reference to `mpfc_div'
+aberth.c:(.text+0xc2f): undefined reference to `mpfc_div'
+aberth.c:(.text+0xcac): undefined reference to `mpfc_div'
+aberth.c:(.text+0xd14): undefined reference to `mpfc_div'
+postproc.o: In function `verify_pade':
+postproc.c:(.text+0x1ff): undefined reference to `mpfc_div'
+postproc.o:postproc.c:(.text+0x261): more undefined references to `mpfc_div' follow
+postproc.o: In function `verify_pade':
+postproc.c:(.text+0x273): undefined reference to `mpfc_add'
+postproc.c:(.text+0x2d0): undefined reference to `mpfc_div'
+postproc.c:(.text+0x2e2): undefined reference to `mpfc_add'
+postproc.c:(.text+0x344): undefined reference to `mpfc_div'
+postproc.c:(.text+0x356): undefined reference to `mpfc_add'
+postproc.c:(.text+0x395): undefined reference to `mpfc_div'
+postproc.c:(.text+0x3a7): undefined reference to `mpfc_add'
+postproc.c:(.text+0x44c): undefined reference to `mpfc_div'
+/home/0/sdyachen/usr/lib/libmpfft.so: undefined reference to `sin'
+/home/0/sdyachen/usr/lib/libmpfft.so: undefined reference to `cexp'
+collect2: ld returned 1 exit status
+make: *** [pade] Error 1

@@ -2,17 +2,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <mpfr.h>
+#include <mpfft_header.h>
 
 #define MOVE_MESH 0		// 0 if singularity tracking is off , 1 otherwise
 #define PADE_TEST 0
 
 #define MODE MPFR_RNDN
 // --------  Structures
-
+/*
 typedef struct multiprecision_complex {
   mpfr_t re, im;
 } mpfc_t, *mpfc_ptr;
-
+*/
 
 typedef struct pade_data {
   unsigned int  n_lins;			// number of iterations for Q^{k}
@@ -38,22 +39,6 @@ extern mpfr_t		Pie, Ovn, Que;
 extern void init_aberth(unsigned int nD);
 extern void free_aberth(unsigned int nD);
 extern void aberth_iter(unsigned int nD, char *str);
-
-// arithmetic.c
-extern void init_mpfc_arithmetic();
-extern void mpfc_mul(mpfc_t *rop, mpfc_t *op1, mpfc_t *op2, mpfr_rnd_t rnd);
-extern void mpfc_mul_si(mpfc_t *rop, mpfc_t *op1, int op2, mpfr_rnd_t rnd);
-extern void mpfc_div(mpfc_t *rop, mpfc_t *op1, mpfc_t *op2, mpfr_rnd_t rnd);
-extern void mpfc_si_div(mpfc_t *rop, int op1, mpfc_t *op2, mpfr_rnd_t rnd);
-extern void mpfc_fms(mpfc_t *rop, mpfc_t *op1, mpfc_t *op2, mpfc_t *op3, mpfr_rnd_t rnd);
-extern void mpfc_fma(mpfc_t *rop, mpfc_t *op1, mpfc_t *op2, mpfc_t *op3, mpfr_rnd_t rnd);
-extern void mpfc_neg(mpfc_t *rop, mpfc_t *op, mpfr_rnd_t rnd);
-extern void mpfc_set(mpfc_t *rop, mpfc_t *op, mpfr_rnd_t rnd);
-extern void mpfc_add(mpfc_t *rop, mpfc_t *op1, mpfc_t *op2, mpfr_rnd_t rnd);
-extern void mpfc_sub(mpfc_t *rop, mpfc_t *op1, mpfc_t *op2, mpfr_rnd_t rnd);
-extern void mpfc_set_si(mpfc_t *rop, int real, int imag, mpfr_rnd_t rnd);
-extern void mpfc_conj(mpfc_t *rop, mpfc_t *op, mpfr_rnd_t rnd);
-
 
 // output.c
 extern void init_output();

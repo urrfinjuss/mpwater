@@ -20,7 +20,6 @@ void init_memory(unsigned int nD) {
   mpfr_init2(Pie, precision);
   mpfr_const_pi(Pie, MODE);
   init_output();
-  init_mpfc_arithmetic();
   //init_poly(nD);
   //init_grams();
 }
