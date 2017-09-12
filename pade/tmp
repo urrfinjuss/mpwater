@@ -1,0 +1,3 @@
+gcc -march=native -Ofast -flto -ffast-math -Wall -fno-schedule-insns -fschedule-insns2 -fstrict-aliasing -funroll-loops -fprefetch-loop-arrays -std=gnu99 -I/home/0/sdyachen/usr/include src/foo.c -o build/foo.o -- doesn't work
+
+gcc -march=native -std=gnu99 -Ofast -flto -ffast-math -mfpmath=sse+387 -Wall -Wpointer-arith -Wcast-align -fno-schedule-insns -fschedule-insns2 -fstrict-aliasing -funroll-loops -fprefetch-loop-arrays   -I/home/0/sdyachen/usr/include -o src/foo.o  -c src/foo.c -- works

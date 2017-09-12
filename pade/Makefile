@@ -1,52 +1,50 @@
-FSW     = foobar.x
+EXECUTABLE     = foobar.x
 
-#List of sources
-C_SRC   = foo.c
-CPP_SRC = main.cpp
-
-# Compilers -Ofast -ffast-math -mfpmath=387
+# Compilers:
 CC      = gcc
 CPP	= g++
 LINK    = g++
-C_OPT     = -march=native -std=gnu99 -Ofast -flto -ffast-math -mfpmath=sse+387 -Wall -Wpointer-arith -Wcast-align -fno-schedule-insns -fschedule-insns2 -fstrict-aliasing -funroll-loops -fprefetch-loop-arrays
 
-CPP_OPT     = -march=native -Ofast -flto -ffast-math -mfpmath=sse+387 -Wall -Wpointer-arith -Wcast-align -fno-schedule-insns -fschedule-insns2 -fstrict-aliasing -funroll-loops -fprefetch-loop-arrays
-
-#-----------------------------
-#generic
-
-LIB_MPI         =
-LIB_FFT         = -L$(HOME)/usr/lib  -lmpfft -lmpfr
-INC_MPI         =
-INC_FFT         = -I$(HOME)/usr/include
-LIB_ADD         =
+# Common flags for C and C++ compiler:
+CFLAGS =-march=native -Ofast -flto -ffast-math -Wall -fno-schedule-insns -fschedule-insns2 -fstrict-aliasing -funroll-loops -fprefetch-loop-arrays
+C_EXTRA =-std=gnu99
 
 #-----------------------------
+# Paths:
+SOURCEDIR = src
+BUILDDIR  = build
 
-C_OBJ_FSW         = $(C_SRC:.c=.o) $(FC_SRC:.f=.o)
-CPP_OBJ_FSW       = $(CPP_SRC:.cpp=.o) $(FCPP_SRC:.f=.o)
-LIB_FSW         = $(LIB_MPI) $(LIB_FFT) $(LIB_ADD)
-INC_FSW         = $(INC_MPI) $(INC_FFT)
+# Extra libraries and headers:
+LIB	= -L$(HOME)/usr/lib  -lmpfft -lmpfr
+INC	= -I$(HOME)/usr/include
 
-#-----------------------------
+# List of sources:
+C_SOURCES   = $(wildcard $(SOURCEDIR)/*.c)
+CPP_SOURCES = $(wildcard $(SOURCEDIR)/*.cpp)
 
-default: foobar
+# List of objects:
+C_OBJECTS	= $(patsubst $(SOURCEDIR)/%.c,$(BUILDDIR)/%.o,$(C_SOURCES))
+CPP_OBJECTS	= $(patsubst $(SOURCEDIR)/%.cpp,$(BUILDDIR)/%.o,$(CPP_SOURCES))
 
-.f.o:
-	$(FC) $(FFLAGS) -c $<
+.PHONY: clean
 
+all: dir $(BUILDDIR)/$(EXECUTABLE)
 
-foobar:
-	$(CC) $(C_OPT) $(DEF_FSW) $(INC_FSW) -c $(C_SRC)
-	$(CPP) $(CPP_OPT) $(DEF_FSW) $(INC_FSW) -c $(CPP_SRC)
-	$(LINK) $(CPP_OPT) $(OBJ_FSW) $(LIB_FSW) -o $(FSW) $(C_OBJ_FSW) $(CPP_OBJ_FSW)
+dir:
+	mkdir -p $(BUILDDIR)
 
-hostname:
-	@echo $(HOSTNAME) $(INC_FFT)
+$(BUILDDIR)/$(EXECUTABLE): $(C_OBJECTS) $(CPP_OBJECTS) 
+	$(LINK) $(CFLAGS) $(LIB) $^ -o $@
+
+$(CPP_OBJECTS): $(BUILDDIR)/%.o : $(SOURCEDIR)/%.cpp
+	$(CPP) $(CFLAGS) $(INC) -c $< -o $@
+
+$(C_OBJECTS): $(BUILDDIR)/%.o : $(SOURCEDIR)/%.c
+	$(CC) $(CFLAGS) $(C_EXTRA) $(INC) -c $< -o $@
 
 clean:
 	@echo "cleaning ..."
-	rm -f *~ *.o
+	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/$(EXECUTABLE)
 
 #-------------------------------
 
