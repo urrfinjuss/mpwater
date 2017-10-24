@@ -18,6 +18,7 @@ int main( int argc, char* argv[]) {
   if (strcmp(state.txt_format,"pade") == 0 )   		format_flag = 3;
   if (strcmp(state.txt_format,"none") == 0 )   		format_flag = 4;
   if (strcmp(state.txt_format,"jon_wilkening") == 0 )   format_flag = 5;
+  if (strcmp(state.txt_format,"pade_multi") == 0 )	format_flag = 6;
  
   switch (format_flag) {
 
@@ -53,6 +54,12 @@ int main( int argc, char* argv[]) {
       set_initial_JW();
       convertQtoZ(data[0], tmpc[5]);  
       restore_potential(data[0], data[1], tmpc[2]);
+      break;
+
+    case 6:
+      printf("Reading multi Pade data\n");
+      set_mapping();
+      load_pade_multi(10);
       break;
 
     default:

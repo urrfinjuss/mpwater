@@ -4,7 +4,7 @@
 static fftwl_complex 	**kq, *tQ;
 static fftwl_complex 	**kv, *tV;
 
-static long double	cfl = 0.200L; // used to be 0.080L
+static long double	cfl = 2.0L/PI; // used to be 0.080L (then 0.250L)
 //static unsigned long    kz;
 static const unsigned long 	pD = 12;
 static const long double 	one_third        = 1.0L/3.0L;
@@ -170,14 +170,13 @@ void rk6_step(fftwl_complex *inQ, fftwl_complex *inV, long double dt) {
   memset(tmpc[1]+N/2, 0, N/2*sizeof(fftwl_complex));
   fftwl_execute(ft0);
   fftwl_execute(ft1); 
-  
   memcpy(inQ, tmpc[0], N*sizeof(fftwl_complex));
   memcpy(inV, tmpc[1], N*sizeof(fftwl_complex));
 }
 
 void evolve_rk6() {
   unsigned int		QC_pass = 1;
-  unsigned long 	counter = 0, j = 0, skip = 500;
+  unsigned long 	counter = 0, j = 0, skip = 400;
   unsigned long		ref_counter = 0;
   char 			filename1[80];
   char 			filename2[80];
@@ -187,7 +186,7 @@ void evolve_rk6() {
   long double   	time = 0.L, Ham = 0.L;
   long double   	dt = cfl*2.L*PI*conf.scaling/state.number_modes;
   FILE *fh_time	= fopen("time_dependence.txt","w");
-  fprintf(fh_time, "# 1. time 2. Kinetic 3. Potential 4. Momentum X 5. Momentum Y\n\n");
+  fprintf(fh_time, "# 1. time 2. Kinetic 3. Potential 4. Curvature\n\n");
   fclose(fh_time);
   map_quality_fourier(data[0], data[1], M_TOL, &QC_pass);
   sprintf(filename2, "./data/spec_%04lu.txt", counter);
@@ -200,8 +199,8 @@ void evolve_rk6() {
   }
   restore_potential(data[0], data[1], tmpc[5]);  
   fh_time = fopen("time_dependence.txt","a");
-  fprintf(fh_time, "%.17LE\t%.17LE\t%.17LE\t", state.time, state.kineticE/PI, state.potentialE/PI); 
-  fprintf(fh_time, "%.17LE\t%.17LE\n", cimagl(state.momentum), creall(state.momentum)); 
+  fprintf(fh_time, "%.17LE\t%.17LE\t", state.time, state.kineticE/PI); 
+  fprintf(fh_time, "%.17LE\t%.17LE\n", state.potentialE/PI, peak_curvature()); 
   fclose(fh_time);
   Ham = (state.kineticE + state.potentialE)/PI;
   sprintf(filename1, "./aux/data_%04lu.txt", counter);
@@ -228,7 +227,9 @@ void evolve_rk6() {
       restore_potential(data[0], data[1], tmpc[2]);
       // Control Map 1: try to shift zoom location and L-scaling (DO NOT REMOVE!)
       track_singularity(data[0]);
+
       alt_map.scaling = conf.scaling/sqrt(2.L);
+      
       // End Control Map 1
 
       remap(&alt_map, state.number_modes);
@@ -241,10 +242,12 @@ void evolve_rk6() {
         printf("Doubling # of Modes: %lu\n", 2*state.number_modes);
         // Control Map 2: try to shift zoom location and L-scaling and double N(DO NOT REMOVE!)
         track_singularity(data[0]);
-        alt_map.scaling = conf.scaling*sqrtl(2.L);
+        if (conf.scaling < 1.L-4.0E-15L) alt_map.scaling = conf.scaling*sqrtl(2.L);
+        else alt_map.scaling = 1.L;
+	
         // End Control Map 2
         remap(&alt_map, 2*state.number_modes);
-        skip = lroundl(1.5L*skip);
+        skip = lroundl(1.1L*skip); // reduced from 1.4L
         restore_potential(data[0], data[1], tmpc[2]);
         print_constants();
         map_quality_fourier(data[0], data[1], R_TOL, &QC_pass); 
@@ -257,13 +260,13 @@ void evolve_rk6() {
         j = 0;
         cfl = 0.98L*cfl;
      	dt = cfl*2.L*PI*conf.scaling/state.number_modes;
-        skip = lroundl(sqrtl(1.5L)*skip);
+        skip = lroundl(1.0L*skip); // reduced skip from sqrt(1.5)
       } else {
 	printf("Failed to find a good map!\n");
 	exit(1);
       }
     } else {
-      if ( !((j+1) % skip) ) {
+      if ( !((j+0) % skip) ) {
         counter++;
         // write out spectrum
         sprintf(filename1, "./data/spec_%04lu.txt", counter);
@@ -276,10 +279,10 @@ void evolve_rk6() {
         surface_out(filename1, tmpc[5]);
         // write out potential and its cut
         restore_potential(data[0], data[1], tmpc[5]);  
-        fh_time = fopen("time_dependence.txt","a");
-        fprintf(fh_time, "%.17LE\t%.17LE\t%.17LE\t", state.time, state.kineticE/PI, state.potentialE/PI); 
-        fprintf(fh_time, "%.17LE\t%.17LE\n", cimagl(state.momentum), creall(state.momentum)); 
-        fclose(fh_time);
+        //fh_time = fopen("time_dependence.txt","a");
+        //fprintf(fh_time, "%.17LE\t%.17LE\t", state.time, state.kineticE/PI); 
+        //fprintf(fh_time, "%.17LE\t%.17LE\n", state.potentialE/PI, peak_curvature()); 
+        //fclose(fh_time);
         Ham = (state.kineticE + state.potentialE)/PI;
         printf("T = %23.16LE\tH = %23.16LE\n", state.time, Ham);
         sprintf(filename1, "./aux/data_%04lu.txt", counter);
@@ -316,6 +319,13 @@ void evolve_rk6() {
         sprintf(filename2, "./roots/roots_V%04lu.txt", counter);
         optimal_pade(filename2, tmpc[5]);
 	*/
+      }
+      if ( !((j+0) % 4) ) {
+        restore_potential(data[0], data[1], tmpc[5]);  
+        fh_time = fopen("time_dependence.txt","a");
+        fprintf(fh_time, "%.17LE\t%.17LE\t", state.time, state.kineticE/PI); 
+        fprintf(fh_time, "%.17LE\t%.17LE\n", state.potentialE/PI, peak_curvature()); 
+        fclose(fh_time);
       }
     }
   }

@@ -139,3 +139,50 @@ void convertZtoQ(fftwl_complex *in, fftwl_complex *out) {
   fftwl_execute(ft0);
   memcpy(out, tmpc[0], N*sizeof(fftwl_complex));
 }
+
+long double peak_curvature() {
+  unsigned 	N = state.number_modes;
+  long double 	overN = 1.L/N;
+  memcpy(tmpc[0], data[0], N*sizeof(fftwl_complex));
+  memcpy(tmpc[1], data[0], N*sizeof(fftwl_complex));
+
+  fftwl_execute(ift0);
+  for (long int j = 0; j < N/2; j++) {
+    tmpc[0][j]     = -1.0IL*((fftwl_complex)(tmpc[0][j]*j))*overN;
+    tmpc[0][N-1-j] = 0.0L;
+  }
+  fftwl_execute(ft0);
+  long double 	tmp = 2.L*cabsl(cimagl(tmpc[1][0]*conjl(tmpc[0][0]))*conf.dq[0]);
+  long double   q = 0.L; 
+  long int 	ind = 0;
+
+  for (long int j = 1; j < N; j++) {
+    if ( 2.L*cabsl(cimagl(tmpc[1][j]*conjl(tmpc[0][j]))*conf.dq[j]) > tmp) {
+      tmp = 2.L*cabsl(cimagl(tmpc[1][j]*conjl(tmpc[0][j]))*conf.dq[j]);
+      q = 1.L*j; 
+      ind = j;
+    }
+  }
+  
+  long double Y[3], U[3];
+  long double a, b, c;
+  Y[1] = tmp;
+  U[0] = -1L;
+  U[1] =  0L;
+  U[2] =  1L;
+  if (ind == 0) {
+    Y[0] = 2.L*cabsl(cimagl(tmpc[1][N-1]*conjl(tmpc[0][N-1]))*conf.dq[N-1]);
+    Y[2] = 2.L*cabsl(cimagl(tmpc[1][1]*  conjl(tmpc[0][1]))  *conf.dq[1]);
+  } else if (ind == N-1) {
+    Y[0] = 2.L*cabsl(cimagl(tmpc[1][N-2]*conjl(tmpc[0][N-2]))*conf.dq[N-2]);
+    Y[2] = 2.L*cabsl(cimagl(tmpc[1][0]*  conjl(tmpc[0][0]))  *conf.dq[0]);
+  } else {
+    Y[0] = 2.L*cabsl(cimagl(tmpc[1][ind-1]*conjl(tmpc[0][ind-1]))*conf.dq[ind-1]);
+    Y[2] = 2.L*cabsl(cimagl(tmpc[1][ind+1]*conjl(tmpc[0][ind+1]))*conf.dq[ind+1]);
+  }
+  c = Y[1];
+  b = 0.5L*(Y[2] - Y[0]);
+  a = 0.5L*(Y[2] - 2.L*Y[1] + Y[0]);
+  return c - 0.5L*b*b/a;
+}
+

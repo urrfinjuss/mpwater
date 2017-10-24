@@ -6,7 +6,7 @@ C_FSW   = main.c memory.c array_func.c input.c output.c mapping.c hlevel.c evolv
 # Compilers -Ofast -ffast-math -mfpmath=387
 CC      = gcc
 LINK    = gcc
-OPT     = -march=native -std=gnu99 -O2 -ffast-math -mfpmath=sse+387 -Wall -Wpointer-arith -Wcast-align -fno-schedule-insns -fschedule-insns2 -fstrict-aliasing -funroll-loops -fprefetch-loop-arrays
+OPT     = -march=native -std=gnu99 -Ofast -flto -ffast-math -mfpmath=sse+387 -Wall -Wpointer-arith -Wcast-align -fno-schedule-insns -fschedule-insns2 -fstrict-aliasing -funroll-loops -fprefetch-loop-arrays
 #OPT	= -march=native -O -fno-inline -Wall -std=gnu99
 #OPT	= -std=gnu99 -mfpmath=387 -Wall
 

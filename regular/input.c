@@ -45,20 +45,21 @@ void set_initial_data() {
   */
   
   // pirate jet (horizontal)
-  /* */
+  /* 
   fftwl_complex C  = -0.02L;  
   fftwl_complex	a1 =  0.0000L + 0.0050IL;
   fftwl_complex a2 =  0.0000L + 0.0075IL;
   fftwl_complex Q  =  2.5L; 
-  /* */
+   */
 
   // oblique jet	
-  /*
-  fftwl_complex C  = -0.03L + 0.02IL;
+  /* */ 
+  //fftwl_complex C  = -0.03L + 0.02IL;
+  fftwl_complex C  = -0.02L;
   fftwl_complex a1 =  0.0000L + 0.0040IL;
   fftwl_complex a2 =  0.0160L + 0.0200IL;
   fftwl_complex Q  =  0.0500L*cexpl(0.21IL*PI);
-  */
+  /* */
 
   for (long int j = 0; j < state.number_modes; j++) {
     q = 2.L*PI*(j*overN - 0.5L) - conf.origin_offset;
@@ -318,8 +319,98 @@ void load_pade() {
     exit(1);
   }
   //surface_out("initial_surface.txt",data[0]);
+  //  Perturbation of Stokes Wave
+  // -----------------------------
+  for (long int j = 0; j < state.number_modes; j++) {
+      long double u, q;
+      long double overN = 1.L/state.number_modes;
+      q = 2.L*PI*(j*overN - 0.5L) - conf.origin_offset;
+      u = conf.image_offset + 2.L*atan2l(conf.scaling*sinl(0.5L*q),cosl(0.5L*q));
+      data[0][j] += -1.0E-6IL/(tanl(0.5L*u) - 1.35E-2IL);
+  }
+  // end perturbation
+  
   convertZtoQ(data[0], data[0]);
   for (int j = 0; j < state.number_modes; j++) {
     data[1][j] = 1.IL*speed*(1.L - data[0][j]*data[0][j]);
+  }
+}
+
+void load_pade_multi(int nwaves) {
+  FILE *fh = fopen(state.restart_name, "r");
+  long double		speed;
+  if (fh) {
+    char line[512], *v[5];
+    long double		T, y0;
+    long double 	overN = 1.L/state.number_modes;
+
+    for (int j = 0; j < 5; j++) v[j] = malloc(512);
+    if (fgets(line, 512, fh) != NULL);
+    //# M = 16384     Residual = 7.666871e-32 y0 = -2.93733978518518156291891533016033e-01
+    //# Amplitude at highest Fourier mode = 3.00000e-37	Pade error = 5.09180e-31        H/lambda = 1.31331355155599360515621709076606e-01	c = 1.0870000000000000e+00
+
+    if (fgets(line, 512, fh) != NULL) sscanf(line, "# M = %s\tResidual = %s\ty0 = %s\n", v[0], v[1], v[2]);
+    y0 = strtold(v[2], NULL);
+    if (fgets(line, 512, fh) != NULL) sscanf(line, "# Amplitude at highest Fourier mode = %s\tPade error = %s\tH/lambda = %s\tc = %s\n", v[0], v[1], v[2], v[3]);
+    speed = strtold(v[3], NULL);
+    //printf("Wave Speed is %.12Le\n", speed);
+    if (fgets(line, 512, fh) != NULL);
+
+    //N = strtol(v[0], NULL, 10);
+    //T = strtold(v[3], NULL);
+    T = 0.L;
+
+    //conf.scaling = strtold(v[1], NULL);
+    //conf.image_offset = strtold(v[2], NULL);
+
+    //printf("Restart:\ntime = %.19LE\nN modes = %ld\n", T, state.number_modes); 
+    //printf("Conformal L = %.19LE\nConformal u = %.19LE\n", conf.scaling, conf.image_offset);
+    int counter = 0;
+    for (int j = 0; j < state.number_modes; j++) {
+      data[0][j] = 1.IL*y0/nwaves;
+    }
+    while (fgets(line, 512, fh) != NULL) {
+      long double Xn, Gn;
+      long double u, q;
+      sscanf(line, "%s\t%s\t%s", v[0], v[1], v[2]);
+      //printf("%s", line);
+      Xn = strtold(v[0], NULL);
+      Gn = strtold(v[1], NULL);
+      for (int j = 0; j < state.number_modes; j++) {
+        q = 2.L*PI*(j*overN - 0.5L) - conf.origin_offset;
+        u = conf.image_offset + 2.L*atan2l(conf.scaling*sinl(0.5L*q),cosl(0.5L*q));
+        data[0][j] += Gn/nwaves/(tanl(0.5L*nwaves*u) - 1.IL*Xn);
+      }
+      //data[0][counter] = strtold(v[1], NULL)-strtold(v[0], NULL) + 1.0IL*strtold(v[2],NULL);
+      //data[1][counter] = strtold(v[3], NULL) + 1.0IL*strtold(v[4],NULL);
+      counter++;
+    }
+    fclose(fh);    
+    for (int j = 0; j < 5; j++) free(v[j]);
+  } else {
+    printf("Missing restart file\n");
+    exit(1);
+  }
+  //surface_out("initial_surface.txt",data[0]);
+  //  Perturbation of Stokes Wave
+  // -----------------------------
+  for (long int j = 0; j < state.number_modes; j++) {
+      long double u, q;
+      long double overN = 1.L/state.number_modes;
+      q = 2.L*PI*(j*overN - 0.5L) - conf.origin_offset;
+      u = conf.image_offset + 2.L*atan2l(conf.scaling*sinl(0.5L*q),cosl(0.5L*q));
+      // stokes002: -4.0E-5IL add
+      // stokes003: dipole 5e-4IL add
+      
+      //data[0][j] += 1.0E-3L*(-2.0E-3IL/(tanl(0.5L*(u-0.1L)) - 5.00E-3IL) + 2.0E-3IL/(tanl(0.5L*(u-0.1L)) - 1.00E-2IL));  // stokes add
+      //data[0][j] = data[0][j]*(1.0  + 1.2E-1L*exp(-4.IL*PI*u));
+      data[0][j] = data[0][j]*(1.0  + 1.2E-2L*(1.0IL/(tanl(0.5L*(u+0.1L)) - 2.40E-1IL) - 1.0IL/(tanl(0.5L*(u-0.1L)) - 4.80E-1IL)));
+      //data[0][j] = data[0][j]*(1.L + 5.0E-4L/(tanl(0.5L*u) - 8.0E-3IL));  // stokes mult
+  }
+  // end perturbation
+  
+  convertZtoQ(data[0], data[0]);
+  for (int j = 0; j < state.number_modes; j++) {
+    data[1][j] = 1.IL*speed*(1.L - data[0][j]*data[0][j])/sqrtl(nwaves);
   }
 }

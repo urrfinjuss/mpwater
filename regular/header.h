@@ -70,6 +70,7 @@ extern void fft_shift(fftwl_complex *in);
 // input.c
 extern void load_ascii();
 extern void load_pade();
+extern void load_pade_multi(int nwaves);
 extern void set_initial_data();
 extern void set_initial_JW();
 extern void load_parameters(int argc, char *argv[]);
@@ -89,6 +90,7 @@ extern void project(fftwl_complex *in, fftwl_complex *out);
 extern void convertZtoQ(fftwl_complex *in, fftwl_complex *out);
 extern void convertQtoZ(fftwl_complex *in, fftwl_complex *out);
 extern void restore_potential(fftwl_complex *inQ, fftwl_complex *inV, fftwl_complex *out);
+extern long double peak_curvature();
 
 // mapping.c
 extern void set_mapping();
