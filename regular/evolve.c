@@ -4,7 +4,7 @@
 static fftwl_complex 	**kq, *tQ;
 static fftwl_complex 	**kv, *tV;
 
-static long double	cfl = 2.0L/PI; // used to be 0.080L (then 0.250L)
+static long double	cfl = 1.0L/PI; // used to be 0.080L (then 0.250L)
 //static unsigned long    kz;
 static const unsigned long 	pD = 12;
 static const long double 	one_third        = 1.0L/3.0L;
@@ -176,12 +176,12 @@ void rk6_step(fftwl_complex *inQ, fftwl_complex *inV, long double dt) {
 
 void evolve_rk6() {
   unsigned int		QC_pass = 1;
-  unsigned long 	counter = 0, j = 0, skip = 400;
+  unsigned long 	counter = 0, j = 0, skip = 1000;
   unsigned long		ref_counter = 0;
   char 			filename1[80];
   char 			filename2[80];
-  long double		M_TOL = 5.0E-09L;
-  long double		R_TOL = 1.0E-09L;
+  long double		M_TOL = 5.0E-08L;
+  long double		R_TOL = 1.0E-08L;
   long double		tshift = 0.L;
   long double   	time = 0.L, Ham = 0.L;
   long double   	dt = cfl*2.L*PI*conf.scaling/state.number_modes;
@@ -247,7 +247,7 @@ void evolve_rk6() {
 	
         // End Control Map 2
         remap(&alt_map, 2*state.number_modes);
-        skip = lroundl(1.1L*skip); // reduced from 1.4L
+        skip = lroundl(1.33L*skip); // reduced from 1.4L
         restore_potential(data[0], data[1], tmpc[2]);
         print_constants();
         map_quality_fourier(data[0], data[1], R_TOL, &QC_pass); 
@@ -260,7 +260,7 @@ void evolve_rk6() {
         j = 0;
         cfl = 0.98L*cfl;
      	dt = cfl*2.L*PI*conf.scaling/state.number_modes;
-        skip = lroundl(1.0L*skip); // reduced skip from sqrt(1.5)
+        skip = lroundl(1.2L*skip); // reduced skip from sqrt(1.5)
       } else {
 	printf("Failed to find a good map!\n");
 	exit(1);
@@ -320,7 +320,7 @@ void evolve_rk6() {
         optimal_pade(filename2, tmpc[5]);
 	*/
       }
-      if ( !((j+0) % 4) ) {
+      if ( !((j+0) % (skip/4)) ) {
         restore_potential(data[0], data[1], tmpc[5]);  
         fh_time = fopen("time_dependence.txt","a");
         fprintf(fh_time, "%.17LE\t%.17LE\t", state.time, state.kineticE/PI); 

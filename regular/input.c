@@ -53,19 +53,31 @@ void set_initial_data() {
    */
 
   // oblique jet	
-  /* */ 
+  /*  
   //fftwl_complex C  = -0.03L + 0.02IL;
   fftwl_complex C  = -0.02L;
   fftwl_complex a1 =  0.0000L + 0.0040IL;
   fftwl_complex a2 =  0.0160L + 0.0200IL;
   fftwl_complex Q  =  0.0500L*cexpl(0.21IL*PI);
-  /* */
+  */
+
+  // multi-pole
+  /**/ 
+  long double 	C  = -0.02L;  
+  fftwl_complex	a1 = 0.0000L + 0.0050IL;
+  fftwl_complex a2 = 0.0000L + 0.0075IL;
+  fftwl_complex	a3 = 0.0000L + 0.0100IL;
+  fftwl_complex a4 = 0.0000L + 0.0125IL;
+  fftwl_complex Q  = 2.5L; 
+  /**/
 
   for (long int j = 0; j < state.number_modes; j++) {
     q = 2.L*PI*(j*overN - 0.5L) - conf.origin_offset;
     u = conf.image_offset - fi + 2.L*atan2l(conf.scaling*sinl(0.5L*q),cosl(0.5L*q));
     //data[0][j] =  clogl(  1.IL*csinl(0.5L*(u-1.IL*a1))) - clogl(1.IL*csinl(0.5L*(u-1.IL*a2)));;  // sim 14 negative discriminant
-    data[0][j] =  clogl(1.IL*csinl(0.5L*(u-a1))) -  clogl(1.IL*csinl(0.5L*(u-a2)));  // sim 11: pirate run
+    //data[0][j] =   clogl(1.IL*csinl(0.5L*(u-a1))) -  clogl(1.IL*csinl(0.5L*(u-a2)));  // sim 11: pirate run
+    data[0][j] =    clogl(1.IL*csinl(0.5L*(u-a1))) +  clogl(1.IL*csinl(0.5L*(u-a2)));  // multipole
+    data[0][j] +=  -clogl(1.IL*csinl(0.5L*(u-a3))) -  clogl(1.IL*csinl(0.5L*(u-a4)));  // multipole
     data[0][j] = -1.IL*Q*data[0][j]/1.L; 	// necessary (sim 11)
     // pade test for VZi
     tmpc[0][j] = data[1][j]*overN; 
@@ -404,7 +416,7 @@ void load_pade_multi(int nwaves) {
       
       //data[0][j] += 1.0E-3L*(-2.0E-3IL/(tanl(0.5L*(u-0.1L)) - 5.00E-3IL) + 2.0E-3IL/(tanl(0.5L*(u-0.1L)) - 1.00E-2IL));  // stokes add
       //data[0][j] = data[0][j]*(1.0  + 1.2E-1L*exp(-4.IL*PI*u));
-      data[0][j] = data[0][j]*(1.0  + 1.2E-2L*(1.0IL/(tanl(0.5L*(u+0.1L)) - 2.40E-1IL) - 1.0IL/(tanl(0.5L*(u-0.1L)) - 4.80E-1IL)));
+      data[0][j] = data[0][j]*(1.0  + 1.2E-2L*(1.0IL/(tanl(0.5L*(u+0.1L-PI)) - 2.40E-1IL) - 1.0IL/(tanl(0.5L*(u-0.1L-PI)) - 4.80E-1IL)));
       //data[0][j] = data[0][j]*(1.L + 5.0E-4L/(tanl(0.5L*u) - 8.0E-3IL));  // stokes mult
   }
   // end perturbation

@@ -32,7 +32,7 @@ void remap(map_ptr new_map, unsigned long int N) {
   long double beta = tanl(0.5L*(new_map->image_offset - conf.image_offset));
   long double overN0 = 1.L/state.number_modes;
   long double overN = 1.L/N;
-  long double R_TOL = 1.0E-09L;
+  long double R_TOL = 1.0E-08L;
   unsigned long int N0 = state.number_modes;
   unsigned int QC_pass = 0;
 
